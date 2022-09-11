@@ -1,4 +1,4 @@
-# aws_test_and_deploy
+# backup_slack
 
 ## Setup
 ```sh

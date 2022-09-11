@@ -34,8 +34,8 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Build docker image
-        run: docker build . -t aws_test_and_deploy:test
+        run: docker build . -t backup_slack:test
 
       - name: Smoke test docker image
         run: |
-          docker run --rm aws_test_and_deploy:test 10
+          docker run --rm backup_slack:test 10

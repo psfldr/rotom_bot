@@ -1,6 +1,6 @@
 [run]
-source = aws_test_and_deploy
-omit = aws_test_and_deploy/__main__.py
+source = backup_slack
+omit = backup_slack/__main__.py
 
 [report]
 exclude_lines =

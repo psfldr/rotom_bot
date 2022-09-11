@@ -34,5 +34,5 @@ USER appuser
 COPY . .
 
 # Run the executable
-ENTRYPOINT ["python", "-m", "aws_test_and_deploy"]
+ENTRYPOINT ["python", "-m", "backup_slack"]
 CMD ["10"]

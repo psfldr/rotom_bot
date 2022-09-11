@@ -4,4 +4,4 @@
 # ... except for dependencies and source
 !Pipfile
 !Pipfile.lock
-!aws_test_and_deploy
+!backup_slack

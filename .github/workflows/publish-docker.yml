@@ -16,4 +16,4 @@ jobs:
         registry: docker.pkg.github.com
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
-        image_name: ${{ github.repository }}/aws_test_and_deploy
+        image_name: ${{ github.repository }}/backup_slack

@@ -1,4 +1,4 @@
-from aws_test_and_deploy.aws_test_and_deploy import fib
+from backup_slack.backup_slack import fib
 
 
 def test_fib() -> None:
