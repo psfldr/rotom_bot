@@ -28,6 +28,9 @@ RUN sudo pacman -S --noconfirm \
 RUN yay -S --noconfirm \
     asdf-vm
 
+# https://stackoverflow.com/questions/7446187/no-module-named-pkg-resources
+RUN sudo pip install setuptools
+
 # asdf: install plugin
 RUN . /opt/asdf-vm/asdf.sh && asdf plugin add python https://github.com/danhper/asdf-python.git
 RUN . /opt/asdf-vm/asdf.sh && asdf plugin add awscli https://github.com/MetricMike/asdf-awscli.git
