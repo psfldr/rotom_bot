@@ -17,9 +17,11 @@ class NotionMessageBackupSetting(TypedDict):
 class NotionMessageBackupClient(Client):
     setting: NotionMessageBackupSetting
 
+
     def __init__(self, setting: NotionMessageBackupSetting) -> None:
         super().__init__(auth=os.environ["NOTION_API_KEY"])
         self.setting = setting
+
 
     def get_user_relation_id(self, user_id: str) -> str:
         """ユーザーのリレーションに設定するレコードのIDを取得する
@@ -46,6 +48,7 @@ class NotionMessageBackupClient(Client):
         else:
             # TODO: 複数該当する場合。すべて採用にする？
             return 'NOT_FOUND'
+
 
     def get_channel_relation_id(self, channel_id: str) -> str:
         """チャンネルのリレーションに設定するレコードのIDを取得する
@@ -79,7 +82,8 @@ class NotionMessageBackupClient(Client):
             ts: str,
             channel_relation_id: str,
             user_relation_id: str,
-            content: str
+            content: str,
+            slack_workspace_name: str
             ) -> dict[str, Any]:
         """登録するプロパティの辞書を返す。
 
@@ -88,6 +92,7 @@ class NotionMessageBackupClient(Client):
             channel_relation_id (str): チャンネルのリレーションに登録するページID
             user_relation_id (str): ユーザーのリレーションに登録するページID
             content (str): 生のメッセージ本文
+            slack_workspace_name(str): Slackワークスペース名
 
         Returns:
             dict: プロパティの辞書
@@ -114,6 +119,15 @@ class NotionMessageBackupClient(Client):
             "ユーザー": {
                 "type": "relation",
                 "relation": [{"id": user_relation_id}]
+            },
+            "Slackワークスペース名": {
+                "type": "rich_text",
+                "rich_text": [
+                    {
+                        "type": "text",
+                        "text": {"content": slack_workspace_name},
+                    },
+                ],
             },
         }
         return properties
@@ -149,8 +163,21 @@ class NotionMessageBackupClient(Client):
             ts: str,
             channel_id: str,
             user_id: str,
-            content: str
+            content: str,
+            slack_workspace_name: str
             ) -> dict[str, Any]:
+        """メッセージバックアップの作成
+
+        Args:
+            ts (str): タイムスタンプ
+            channel_id (str): チャンネルID
+            user_id (str): ユーザーID
+            content (str): メッセージ本文（Markdown）
+            slack_workspace_name (str): Slackワークスペース名
+
+        Returns:
+            dict[str, Any]: Notion API ページ作成のレスポンス
+        """
         # ユーザーとチャンネルのリレーションに登録するページのIDを取得する。
         create_parameter = {
             "parent": {"database_id": self.setting['MESSAGES_DATABASE_ID']},
@@ -158,7 +185,8 @@ class NotionMessageBackupClient(Client):
                 ts=ts,
                 channel_relation_id=self.get_channel_relation_id(channel_id),
                 user_relation_id=self.get_user_relation_id(user_id),
-                content=content
+                content=content,
+                slack_workspace_name=slack_workspace_name
             ),
             "children": self.get_page_content_dict(content),
         }

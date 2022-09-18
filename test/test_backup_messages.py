@@ -62,7 +62,8 @@ class TestNotionMessageBackupClient():
             ts=ts,
             channel_id='AAAAAAAAAAAA',
             user_id='BBBBBBBBBBBB',
-            content=f'テスト本文（{ts}）'
+            content=f'テスト本文（{ts}）',
+            slack_workspace_name='CCCCCCCCCCCC'
         )
         # 検証
         # 戻り値はcreateリクエストのレスポンス
@@ -78,7 +79,8 @@ class TestNotionMessageBackupClient():
             ts=ts,
             channel_relation_id=mocks['get_channel_relation_id'].return_value,
             user_relation_id=mocks['get_user_relation_id'].return_value,
-            content=f'テスト本文（{ts}）'
+            content=f'テスト本文（{ts}）',
+            slack_workspace_name='CCCCCCCCCCCC'
         )
 
     # def test_create_message_backup_nomock(self) -> None:
@@ -88,6 +90,7 @@ class TestNotionMessageBackupClient():
     #         ts=ts,
     #         channel_id='TEST1',
     #         user_id='TEST1',
-    #         content=f'テスト本文（{ts}）'
+    #         content=f'テスト本文（{ts}）',
+    #         slack_workspace_name='DEBUG'
     #     )
     #     print(response)
