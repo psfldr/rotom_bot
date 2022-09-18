@@ -34,3 +34,5 @@ RUN sudo pip install setuptools
 # asdf: install plugin
 RUN . /opt/asdf-vm/asdf.sh && asdf plugin add python https://github.com/danhper/asdf-python.git
 RUN . /opt/asdf-vm/asdf.sh && asdf plugin add awscli https://github.com/MetricMike/asdf-awscli.git
+RUN . /opt/asdf-vm/asdf.sh && asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
+

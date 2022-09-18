@@ -6,3 +6,5 @@ alias awslocal="AWS_ACCESS_KEY_ID=dummy AWS_SECRET_ACCESS_KEY=dummy AWS_DEFAULT_
 if not set -q CONFIG_FISH_NO_NEOFETCH
     neofetch
 end
+
+fish_add_path $HOME/backup_slack/node_modules/.bin

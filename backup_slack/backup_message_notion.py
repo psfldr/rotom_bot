@@ -4,7 +4,7 @@ from typing import Any
 from typing import TypedDict
 
 
-class NotionMessageBackupSetting(TypedDict):
+class BackupMessageNotionSetting(TypedDict):
     # データベースID
     MESSAGES_DATABASE_ID: str  # メッセージ
     CHANNELS_DATABASE_ID: str  # チャンネル
@@ -14,11 +14,11 @@ class NotionMessageBackupSetting(TypedDict):
     USER_KEY_NAME: str  # ユーザー
 
 
-class NotionMessageBackupClient(Client):
-    setting: NotionMessageBackupSetting
+class BackupMessageNotionClient(Client):
+    setting: BackupMessageNotionSetting
 
 
-    def __init__(self, setting: NotionMessageBackupSetting) -> None:
+    def __init__(self, setting: BackupMessageNotionSetting) -> None:
         super().__init__(auth=os.environ["NOTION_API_KEY"])
         self.setting = setting
 

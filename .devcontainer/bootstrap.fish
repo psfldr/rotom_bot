@@ -16,4 +16,7 @@ fisher install PatrickF1/fzf.fish
 
 asdf install awscli latest
 asdf local awscli latest
+asdf install nodejs lts-gallium
+asdf local nodejs lts-gallium
+
 cp -r .devcontainer/phoenix_files/.aws/ ~/.aws/
