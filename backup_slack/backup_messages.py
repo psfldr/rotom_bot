@@ -1,41 +1,25 @@
 import os
 from notion_client import Client
+from typing import Any
+from typing import TypedDict
 
 
-class NotionMessageBackupClient():
-    client: Client
-    BACKUP_PARENT_PAGE_ID: str
-    MESSAGES_DATABASE_ID: str
-    CHANNELS_DATABASE_ID: str
-    USERS_DATABASE_ID: str
-    CHANNEL_KEY_NAME = 'チャンネルID'
-    USER_KEY_NAME = 'ユーザーID'
+class NotionMessageBackupSetting(TypedDict):
+    # データベースID
+    MESSAGES_DATABASE_ID: str  # メッセージ
+    CHANNELS_DATABASE_ID: str  # チャンネル
+    USERS_DATABASE_ID: str  # ユーザー
+    # リレーションの列の名前
+    CHANNEL_KEY_NAME: str  # チャンネル
+    USER_KEY_NAME: str  # ユーザー
 
-    def __init__(self):
-        # Notionクライアントを作成
-        self.client = Client(auth=os.environ["NOTION_API_KEY"])
-        # 親ページ（名前が「Slackバックアップ」のページ）のIDを取得
-        self.BACKUP_PARENT_PAGE_ID = self.client.search(query='Slackバックアップ')['results'][0]['id']
-        # 親ページを親に持つデータベースのIDを取得する
-        self.MESSAGES_DATABASE_ID = self.get_child_database_id('メッセージ')
-        self.CHANNELS_DATABASE_ID = self.get_child_database_id('チャンネル')
-        self.USERS_DATABASE_ID = self.get_child_database_id('ユーザー')
 
-    def get_child_database_id(self, database_name: str) -> str:
-        """BACKUP_PARENT_PAGE_IDを親に持つデータベースのIDを取得する
+class NotionMessageBackupClient(Client):
+    setting: NotionMessageBackupSetting
 
-        Args:
-            database_name (str): データベース名
-
-        Returns:
-            str: データベースID
-        """
-        search_result = self.client.search(
-            query=database_name,
-            filter={'property': 'object', 'value': 'database'}
-        )['results']
-        children = [i for i in search_result if i['parent']['page_id'] == self.BACKUP_PARENT_PAGE_ID]
-        return children[0]['id']
+    def __init__(self, setting: NotionMessageBackupSetting) -> None:
+        super().__init__(auth=os.environ["NOTION_API_KEY"])
+        self.setting = setting
 
     def get_user_relation_id(self, user_id: str) -> str:
         """ユーザーのリレーションに設定するレコードのIDを取得する
@@ -47,21 +31,21 @@ class NotionMessageBackupClient():
             str: ユーザーに対応するNotion上のページID
         """
         query_parameter = {
-            "database_id": self.USERS_DATABASE_ID,
+            "database_id": self.setting['USERS_DATABASE_ID'],
             "filter": {
-                "property": self.USER_KEY_NAME,
+                "property": self.setting['USER_KEY_NAME'],
                 "rich_text": {"contains": user_id}
             },
         }
-        results = self.client.databases.query(**query_parameter).get("results")
+        results = self.databases.query(**query_parameter).get("results")  # type: ignore
         if len(results) == 0:
             # TODO: 該当しない場合、新規作成する？
-            return None
+            return 'NOT_FOUND'
         elif len(results) == 1:
-            return results[0]['id']
+            return str(results[0]['id'])
         else:
             # TODO: 複数該当する場合。すべて採用にする？
-            return None
+            return 'NOT_FOUND'
 
     def get_channel_relation_id(self, channel_id: str) -> str:
         """チャンネルのリレーションに設定するレコードのIDを取得する
@@ -73,21 +57,21 @@ class NotionMessageBackupClient():
             str: チャンネルに対応するNotion上のページID
         """
         query_parameter = {
-            "database_id": self.CHANNELS_DATABASE_ID,
+            "database_id": self.setting['CHANNELS_DATABASE_ID'],
             "filter": {
-                "property": self.CHANNEL_KEY_NAME,
+                "property": self.setting['CHANNEL_KEY_NAME'],
                 "rich_text": {"contains": channel_id}
             },
         }
-        results = self.client.databases.query(**query_parameter).get("results")
+        results = self.databases.query(**query_parameter).get("results")  # type: ignore
         if len(results) == 0:
             # TODO: 該当しない場合、新規作成する？
-            return None
+            return 'NOT_FOUND'
         elif len(results) == 1:
-            return results[0]['id']
+            return str(results[0]['id'])
         else:
             # TODO: 複数該当する場合。すべて採用にする？
-            return None
+            return 'NOT_FOUND'
 
 
     def get_page_properties_dict(
@@ -96,7 +80,7 @@ class NotionMessageBackupClient():
             channel_relation_id: str,
             user_relation_id: str,
             content: str
-            ) -> dict:
+            ) -> dict[str, Any]:
         """登録するプロパティの辞書を返す。
 
         Args:
@@ -135,7 +119,7 @@ class NotionMessageBackupClient():
         return properties
 
 
-    def get_page_content_dict(self, content: str) -> list[dict]:
+    def get_page_content_dict(self, content: str) -> list[dict[str, Any]]:
         """メッセージ本文から、ページコンテンツを作成して返す。
 
         Args:
@@ -166,10 +150,10 @@ class NotionMessageBackupClient():
             channel_id: str,
             user_id: str,
             content: str
-            ) -> None:
+            ) -> dict[str, Any]:
         # ユーザーとチャンネルのリレーションに登録するページのIDを取得する。
         create_parameter = {
-            "parent": {"database_id": self.MESSAGES_DATABASE_ID},
+            "parent": {"database_id": self.setting['MESSAGES_DATABASE_ID']},
             "properties": self.get_page_properties_dict(
                 ts=ts,
                 channel_relation_id=self.get_channel_relation_id(channel_id),
@@ -178,4 +162,4 @@ class NotionMessageBackupClient():
             ),
             "children": self.get_page_content_dict(content),
         }
-        return self.client.pages.create(**create_parameter)
+        return self.pages.create(**create_parameter)  # type: ignore
