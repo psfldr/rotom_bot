@@ -24,7 +24,19 @@
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [
 		"ms-python.vscode-pylance",
-		"ms-azuretools.vscode-docker"
+		"ms-azuretools.vscode-docker",
+		"ThreadHeap.serverless-ide-vscode",
+		"skyapps.fish-vscode",
+		"ms-toolsai.jupyter-keymap",
+		"njpwerner.autodocstring",
+		"janisdd.vscode-edit-csv",
+		"mhutchie.git-graph",
+		"eamodio.gitlens",
+		"ms-toolsai.jupyter",
+		"ms-python.python",
+		"ms-toolsai.jupyter-renderers",
+		"yzhang.markdown-all-in-one",
+		"TakumiI.markdowntable"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.

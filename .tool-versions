@@ -1,2 +1,2 @@
-awscli 2.7.31
-nodejs lts-gallium
+awscli 2.7.34
+nodejs 16.17.0
