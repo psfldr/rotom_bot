@@ -8,3 +8,5 @@ if not set -q CONFIG_FISH_NO_NEOFETCH
 end
 
 fish_add_path $HOME/backup_slack/node_modules/.bin
+
+set TZ 'Asia/Tokyo'; export TZ
