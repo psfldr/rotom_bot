@@ -103,7 +103,7 @@ class BackupMessageNotionClient(Client):
                     {"text": {"content": ts}}
                 ]
             },
-            "コンテンツの先頭": {
+            "本文": {
                 "type": "rich_text",
                 "rich_text": [
                     {

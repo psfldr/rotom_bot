@@ -4,12 +4,13 @@ frameworkVersion: '3'
 
 provider:
   name: aws
-  runtime: python3.8
+  runtime: python3.9
   region: ap-northeast-1
   profile: ${self:custom.profiles.${sls:stage}}
-
+  environment: ${self:custom.environment.${sls:stage}}
 
 plugins:
+  - serverless-python-requirements
   - serverless-localstack
 
 custom:
@@ -19,6 +20,12 @@ custom:
   profiles:
     local: local
     prod: prod
+  environment:
+    local:
+      NOTION_API_KEY: ${ssm:/eggmuri/${sls:stage}/rotom_bot/notion/NOTION_API_KEY}
+      BACKUP_MESSAGES_DATABASE_ID: ${ssm:/eggmuri/${sls:stage}/rotom_bot/notion/BACKUP_MESSAGES_DATABASE_ID}
+      BACKUP_CHANNELS_DATABASE_ID: ${ssm:/eggmuri/${sls:stage}/rotom_bot/notion/BACKUP_CHANNELS_DATABASE_ID}
+      BACKUP_USERS_DATABASE_ID: ${ssm:/eggmuri/${sls:stage}/rotom_bot/notion/BACKUP_USERS_DATABASE_ID}
 
 functions:
   backup_messages:

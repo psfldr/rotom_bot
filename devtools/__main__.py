@@ -1,4 +1,4 @@
-from typing import IO, Callable, ParamSpec, TypeVar, TypedDict
+from typing import IO, Callable, List, TypeVar, TypedDict
 import click
 import logging
 from subprocess import Popen, PIPE, STDOUT
@@ -28,11 +28,10 @@ class CommonParam(TypedDict):
     debug: bool  # デバッグモード
 
 
-P = ParamSpec('P')
 R = TypeVar('R')
 
 
-def log_start_and_end(func: Callable[P, R]) -> Callable[P, R]:
+def log_start_and_end(func: Callable[..., R]) -> Callable[..., R]:  # type: ignore
     """処理の開始と終了時にログを出力するようにするデコレータ
 
     Args:
@@ -42,7 +41,7 @@ def log_start_and_end(func: Callable[P, R]) -> Callable[P, R]:
         Callable[P, R]: 最初と最後にログ出力処理を追加した関数
     """
     logger: logging.Logger = logging.getLogger(LOGGING_APP_NAME)
-    def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
+    def wrapper(*args, **kwargs) -> R:  # type: ignore
         logger.info(f'{Fore.GREEN}🔨 {func.__doc__}{Style.RESET_ALL}')
         ret: R = func(*args, **kwargs)
         logger.info(f'{Fore.GREEN}✔ 処理完了しました。{Style.RESET_ALL}')
@@ -51,7 +50,7 @@ def log_start_and_end(func: Callable[P, R]) -> Callable[P, R]:
     return wrapper
 
 
-def execute_command(args: list[str]) -> None:
+def execute_command(args: List[str]) -> None:
     """コマンドを別プロセスで実行する。
 
     Args:
@@ -141,8 +140,8 @@ def setup_notion_param(obj: CommonParam) -> None:
         local_endpoint='http://localstack:4566'
     )
     ssm_manager.setup_notion_param_prod()
-    ssm_manager.copy_parameters(mode='prod_to_prod', path='/Eggmuri/Prod/Notion')
-    ssm_manager.copy_parameters(mode='prod_to_local', path='/Eggmuri/Local/Notion')
+    ssm_manager.copy_parameters(mode='prod_to_prod', path='/eggmuri/prod/rotom_bot/notion/')
+    ssm_manager.copy_parameters(mode='prod_to_local', path='/eggmuri/prod/rotom_bot/notion')
 
 
 @cli.command()
