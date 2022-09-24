@@ -26,6 +26,7 @@ RUN sudo pacman -S --noconfirm \
     unzip \
     python-pipenv
 RUN yay -S --noconfirm \
+    ngrok \
     asdf-vm
 
 # https://stackoverflow.com/questions/7446187/no-module-named-pkg-resources

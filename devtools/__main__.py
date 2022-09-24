@@ -1,7 +1,7 @@
 from typing import IO, Callable, List, TypeVar, TypedDict
 import click
 import logging
-from subprocess import Popen, PIPE, STDOUT
+from subprocess import Popen, PIPE, STDOUT, check_output
 from rich.console import Console
 import colorama
 from colorama import Fore, Back, Style
@@ -104,7 +104,7 @@ def deploy_local_function(obj: CommonParam, function_name: str) -> None:
 
 
 @cli.command()
-@click.option('--function_name', '-f', help='関数名')
+@click.option('--function_name', '-f', help='関数名', required=True)
 @click.pass_obj
 @log_start_and_end
 def invoke_lambda(obj: CommonParam, function_name: str) -> None:
@@ -114,6 +114,27 @@ def invoke_lambda(obj: CommonParam, function_name: str) -> None:
         'aws', '--profile=local', '--endpoint-url=http://localstack:4566',
         'lambda', 'invoke', f'--function-name={full_function_name}', '/dev/stdout',
     ])
+
+
+@cli.command()
+@click.option('--function_name', '-f', help='関数名')
+@click.pass_obj
+@log_start_and_end
+def invoke_api_request(obj: CommonParam, function_name: str) -> None:
+    """LocalStack上の指定されたAPIへリクエストする試験をします。"""
+    full_function_name = f'backup-slack-local-{function_name}'
+
+    # TODO
+    # rest-api-idと、resource-idがわかればtest-invoke-methodが使える
+    # awslocal apigateway test-invoke-method --rest-api-id qv0i98brzo --resource-id j0jskyl5ve --http-method POST
+    # または直接URL叩く
+    # curl -XPOST http://localstack:4566/restapis/qv0i98brzo/local/_user_request_/slack/events
+    # それか、ngrokで設定した公開URLを叩くか？
+
+    # execute_command([
+    #     'aws', '--profile=local', '--endpoint-url=http://localstack:4566',
+    #     'lambda', 'invoke', f'--function-name={full_function_name}', '/dev/stdout',
+    # ])
 
 
 @cli.command()
@@ -141,12 +162,13 @@ def setup_notion_param(obj: CommonParam) -> None:
     )
     ssm_manager.setup_notion_param_prod()
     ssm_manager.copy_parameters(mode='prod_to_prod', path='/eggmuri/prod/rotom_bot/notion/')
-    ssm_manager.copy_parameters(mode='prod_to_local', path='/eggmuri/prod/rotom_bot/notion')
+    ssm_manager.copy_parameters(mode='prod_to_local', path='/eggmuri/local/rotom_bot/notion')
+    ssm_manager.copy_parameters(mode='prod_to_local', path='/eggmuri/local/rotom_bot/slack')
 
 
 @cli.command()
 @click.option('--follow', is_flag=True, default=False, help='最新のログを随時表示するモード', show_default=True)
-@click.option('--since', default='5m', help='取得期間（ex. 30s, 5m, 1h）', show_default=True)
+@click.option('--since', help='取得期間（ex. 30s, 5m, 1h）')
 @click.option('--function_name', '-f', required=True, help='関数名')
 @click.pass_obj
 @log_start_and_end
@@ -161,12 +183,51 @@ def get_lambda_logs(obj: CommonParam, follow: bool, since: str, function_name: s
             'aws', '--profile=local', '--endpoint-url=http://localstack:4566',
             'logs', 'tail', '--follow', f'/aws/lambda/{full_function_name}',
         ]
-    else:
+    elif since:
         logger.info(f'ログを最新の [{since}] 前から表示します。')
         args = [
             'aws', '--profile=local', '--endpoint-url=http://localstack:4566',
-            'logs', 'tail', f'/aws/lambda/{full_function_name}',
+            'logs', 'tail', f'/aws/lambda/{full_function_name}', f'--since={since}'
         ]
+    else:
+        logger.info(f'最新のログストリームのログを表示します。')
+        args = [
+            'aws', '--profile=local', '--endpoint-url=http://localstack:4566',
+            'logs', 'describe-log-streams',
+            '--log-group-name', f'/aws/lambda/{full_function_name}',
+            '--max-items', '1',
+            '--order-by', 'LastEventTime', '--descending',
+            '--query', 'logStreams[].logStreamName',
+            '--output', 'text',
+        ]
+        latest_log_stream_name = check_output(args, universal_newlines=True).split('\n')[0]
+        logger.info(f'{latest_log_stream_name=}')
+        args = [
+            'aws', '--profile=local', '--endpoint-url=http://localstack:4566',
+            'logs', 'tail', f'/aws/lambda/{full_function_name}',
+            '--log-stream-names', latest_log_stream_name,
+            '--since', '30d'
+        ]
+    execute_command(args)
+
+
+@cli.command()
+@click.pass_obj
+@click.option('--name', help='パラメータのパス', required=True)
+@click.option('--value', help='パラメータの値', required=True)
+@log_start_and_end
+def put_parameter(obj: CommonParam, name: str, value: str) -> None:
+    """SSMにパラメータを登録します。"""
+    full_path = f'/eggmuri/local/rotom_bot/{name}'
+    logger: logging.Logger = logging.getLogger(LOGGING_APP_NAME)
+    logger.info(f'{full_path=}')
+    logger.info(f'{value=}')
+    args = [
+        # 'aws', '--profile=local', '--endpoint-url=http://localstack:4566',
+        'aws', '--profile=prod',
+        'ssm', 'put-parameter', f'--name={full_path}', f'--value={value}',
+        '--type=String', '--overwrite',
+    ]
     execute_command(args)
 
 

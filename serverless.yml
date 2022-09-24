@@ -8,6 +8,12 @@ provider:
   region: ap-northeast-1
   profile: ${self:custom.profiles.${sls:stage}}
   environment: ${self:custom.environment.${sls:stage}}
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action: 
+        - "lambda:InvokeFunction"
+        - "lambda:GetFunction"
+      Resource: "*"
 
 plugins:
   - serverless-python-requirements
@@ -26,7 +32,15 @@ custom:
       BACKUP_MESSAGES_DATABASE_ID: ${ssm:/eggmuri/${sls:stage}/rotom_bot/notion/BACKUP_MESSAGES_DATABASE_ID}
       BACKUP_CHANNELS_DATABASE_ID: ${ssm:/eggmuri/${sls:stage}/rotom_bot/notion/BACKUP_CHANNELS_DATABASE_ID}
       BACKUP_USERS_DATABASE_ID: ${ssm:/eggmuri/${sls:stage}/rotom_bot/notion/BACKUP_USERS_DATABASE_ID}
+      SLACK_BOT_TOKEN: ${ssm:/eggmuri/${sls:stage}/rotom_bot/slack/SLACK_BOT_TOKEN}
+      SLACK_SIGNING_SECRET: ${ssm:/eggmuri/${sls:stage}/rotom_bot/slack/SLACK_SIGNING_SECRET}
+      LOCALSTACK_HOSTNAME: localstack
+      EDGE_PORT: 4566
 
 functions:
   backup_messages:
-    handler: handler/backup_messages.lambda_handler
+    handler: handler/backup_messages.handler
+    events:
+      - http:
+          path: slack/events
+          method: post
