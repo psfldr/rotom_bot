@@ -1,5 +1,6 @@
 *.ipynb
-.devcontainer/phoenix_files/.aws/*
+psfldr-aws.env
+.devcontainer/phoenix_files/.config/fish/fish_history
 
 # Created by https://www.toptal.com/developers/gitignore/api/python,node,linux,windows,macos,serverless
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,node,linux,windows,macos,serverless

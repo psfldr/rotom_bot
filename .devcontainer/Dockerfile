@@ -18,19 +18,20 @@ RUN sudo pacman -Syy \
 RUN git clone https://aur.archlinux.org/yay.git && cd yay && \
     makepkg -si --noconfirm && cd ../ && rm -r yay
 RUN yay -S --noconfirm asdf-vm
+
+# プロジェクト特有のパッケージ
 # asdfで必要ツールインストール
 RUN . /opt/asdf-vm/asdf.sh \
     && asdf plugin add python https://github.com/danhper/asdf-python.git \
     && asdf plugin add awscli https://github.com/MetricMike/asdf-awscli.git \
     && asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git \
     && asdf install awscli 2.7.35 \
-    && asdf install nodejs 16.17.0 \
     && asdf local awscli 2.7.35 \
-    && asdf local nodejs 16.17.0
-
-# プロジェクト特有のパッケージ
+    && asdf install nodejs 16.17.0 \
+    && asdf local nodejs 16.17.0 \
+    && asdf install python 3.9.14
 RUN sudo pacman -Syy \
-    && sudo pacman -S --noconfirm python-pipenv \
+    && sudo pacman -S --noconfirm python python-pip python-pipenv \
+    && pip install setuptools \
     # https://stackoverflow.com/questions/7446187/no-module-named-pkg-resources
-    && sudo pip install setuptools \
-    && yay -S --noconfirm ngrok
+    && yay -S --noconfirm ngrok git-secrets

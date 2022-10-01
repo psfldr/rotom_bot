@@ -67,7 +67,11 @@ def execute_command(args: List[str]) -> None:
             for line in proc.stdout or []:
                 line_without_newline = line.rstrip("\n")
                 logger.info(f'{Style.DIM}{line_without_newline}{Style.RESET_ALL}')
-    logger.info(f'{Fore.BLUE}✔ 別プロセスの処理終了: {command=}{Style.RESET_ALL}')
+    returncode = proc.returncode
+    if returncode == 0:
+        logger.info(f'{Fore.BLUE}✔ 別プロセスの処理が正常終了: {command=}{Style.RESET_ALL}')
+    else:
+        logger.error(f'{Fore.RED}❌ 別プロセスの処理が異常終了: {returncode=} {command=}{Style.RESET_ALL}')
 
 
 @click.group()
@@ -113,7 +117,7 @@ def invoke_lambda(obj: CommonParam, function_name: str) -> None:
     """LocalStack上の指定されたLambdaを実行します。"""
     full_function_name = f'backup-slack-local-{function_name}'
     execute_command([
-        'aws', f'--endpoint-url={AWS_ENDPOINT_URL}',
+        'aws', '--profile=local', f'--endpoint-url={AWS_ENDPOINT_URL}',
         'lambda', 'invoke', f'--function-name={full_function_name}', '/dev/stdout',
     ])
 
@@ -134,7 +138,7 @@ def invoke_api_request(obj: CommonParam, function_name: str) -> None:
     # それか、ngrokで設定した公開URLを叩くか？
 
     # execute_command([
-    #     'aws', f'--endpoint-url={AWS_ENDPOINT_URL}',
+    #     'aws', '--profile=local', f'--endpoint-url={AWS_ENDPOINT_URL}',
     #     'lambda', 'invoke', f'--function-name={full_function_name}', '/dev/stdout',
     # ])
 
@@ -161,19 +165,19 @@ def get_lambda_logs(obj: CommonParam, follow: bool, since: str, function_name: s
     if follow:
         logger.info('待機状態になり、最新のログを随時表示します。')
         args = [
-            'aws', f'--endpoint-url={AWS_ENDPOINT_URL}',
+            'aws', '--profile=local', f'--endpoint-url={AWS_ENDPOINT_URL}',
             'logs', 'tail', '--follow', f'/aws/lambda/{full_function_name}',
         ]
     elif since:
         logger.info(f'ログを最新の [{since}] 前から表示します。')
         args = [
-            'aws', f'--endpoint-url={AWS_ENDPOINT_URL}',
+            'aws', '--profile=local', f'--endpoint-url={AWS_ENDPOINT_URL}',
             'logs', 'tail', f'/aws/lambda/{full_function_name}', f'--since={since}'
         ]
     else:
         logger.info(f'最新のログストリームのログを表示します。')
         args = [
-            'aws', f'--endpoint-url={AWS_ENDPOINT_URL}',
+            'aws', '--profile=local', f'--endpoint-url={AWS_ENDPOINT_URL}',
             'logs', 'describe-log-streams',
             '--log-group-name', f'/aws/lambda/{full_function_name}',
             '--max-items', '1',
@@ -184,7 +188,7 @@ def get_lambda_logs(obj: CommonParam, follow: bool, since: str, function_name: s
         latest_log_stream_name = check_output(args, universal_newlines=True).split('\n')[0]
         logger.info(f'{latest_log_stream_name=}')
         args = [
-            'aws', f'--endpoint-url={AWS_ENDPOINT_URL}',
+            'aws', '--profile=local', f'--endpoint-url={AWS_ENDPOINT_URL}',
             'logs', 'tail', f'/aws/lambda/{full_function_name}',
             '--log-stream-names', latest_log_stream_name,
             '--since', '30d'
@@ -204,7 +208,7 @@ def put_parameter(obj: CommonParam, name: str, value: str) -> None:
     logger.info(f'{full_path=}')
     logger.info(f'{value=}')
     args = [
-        'aws', f'--endpoint-url={AWS_ENDPOINT_URL}',
+        'aws', '--profile=local', f'--endpoint-url={AWS_ENDPOINT_URL}',
         'ssm', 'put-parameter', f'--name={full_path}', f'--value={value}',
         '--type=String', '--overwrite',
     ]

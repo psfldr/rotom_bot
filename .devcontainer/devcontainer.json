@@ -53,5 +53,6 @@
 
 	// Uncomment to connect as a non-root user if you've added one. See https://aka.ms/vscode-remote/containers/non-root.
 	"remoteUser": "devuser",
+	"initializeCommand": "AWS_SESSION_TOKEN_TTL=4h aws-vault exec psfldr-aws --region ap-northeast-1 -- env | grep AWS > psfldr-aws.env",
 	"onCreateCommand": "fish .devcontainer/bootstrap.fish"
 }

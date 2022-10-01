@@ -1,5 +1,6 @@
 import logging
 import boto3
+from boto3.session import Session
 import notion_client
 import os
 from colorama import Fore, Back, Style
@@ -13,14 +14,15 @@ class SSMManager():
 
     def __init__(self) -> None:
         # ローカル環境クライアント
-        self.local_ssm_client = boto3.client('ssm', endpoint_url=os.environ['AWS_ENDPOINT_URL'])
+        session = Session(profile_name='local')
+        self.local_ssm_client = session.client('ssm', endpoint_url=os.environ['AWS_ENDPOINT_URL'])
         # Notionクライアント
         param_name = '/rotom_bot/local/notion/NOTION_API_KEY'
         response = self.local_ssm_client.get_parameter(Name=param_name)
         api_key = response['Parameter']['Value']
         self.notion_client = notion_client.Client(auth=api_key)
 
-    def get_child_database_id_and_set_prod(self, parent_page_id: str, path: str) -> None:
+    def get_child_database_id_and_set_prod(self, parent_page_id: str, path: str) -> str:
         """NotionデータベースのIDを取得する
 
         Args:
@@ -37,11 +39,7 @@ class SSMManager():
         )['results']
         children = [i for i in search_result if i['parent']['page_id'] == parent_page_id]  # type: ignore
         database_id = str(children[-1]['id'])
-        database_id_path = path.replace('NAME', 'ID')
-        self.local_ssm_client.put_parameter(
-            Name=database_id_path, Value=database_id,
-            Type='String', Overwrite=True, Tier='Standard', DataType='text'
-        )
+        return database_id
 
     def setup_notion_param_local(self) -> None:
         logger: logging.Logger = logging.getLogger(LOGGING_APP_NAME)
@@ -61,6 +59,12 @@ class SSMManager():
             'BACKUP_USERS_DATABASE_NAME',
         ]
         for i, key in enumerate(database_name_keys, start=1):
-            path = path_format.format(key)
-            logger.info(f'{Style.DIM}ID取得&SSM登録 {i}/{len(database_name_keys)} {path=}{Style.RESET_ALL}')
-            self.get_child_database_id_and_set_prod(parent_page_id, path)
+            database_name_path = path_format.format(key)
+            logger.info(f'{Style.DIM}ID取得 {i}/{len(database_name_keys)} {database_name_path=}{Style.RESET_ALL}')
+            database_id = self.get_child_database_id_and_set_prod(parent_page_id, database_name_path)
+            database_id_path = database_name_path.replace('NAME', 'ID')
+            self.local_ssm_client.put_parameter(
+                Name=database_id_path, Value=database_id,
+                Type='String', Overwrite=True, Tier='Standard', DataType='text'
+            )
+            logger.info(f'{Style.DIM}SSM登録 {i}/{len(database_name_keys)} {database_id_path=}{Style.RESET_ALL}')

@@ -7,6 +7,7 @@ provider:
   runtime: python3.9
   region: ap-northeast-1
   environment: ${self:custom.environment.${sls:stage}}
+  profile: ${self:custom.profiles.${sls:stage}}
   iam:
     role:
       statements:
@@ -24,6 +25,9 @@ custom:
   localstack:
     stages: [local]
     host: http://localstack
+  profiles:
+    local: local
+    prod: prod
   environment:
     local:
       NOTION_API_KEY: ${ssm:/rotom_bot/${sls:stage}/notion/NOTION_API_KEY}
