@@ -1,9 +1,8 @@
 # syntax=docker/dockerfile:1
 FROM archlinux/archlinux:latest
-# リポジトリアップデート
-RUN pacman -Syy
 # base-develパッケージインストール
-RUN pacman -S --noconfirm base-devel
+RUN pacman -Syy \
+    && pacman -S --noconfirm base-devel
 # ユーザー作成
 RUN groupadd docker
 RUN useradd -m -G wheel,docker --shell /bin/bash devuser
@@ -12,7 +11,8 @@ RUN echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 USER devuser
 WORKDIR /home/devuser/backup_slack
 # 一般的なパッケージインストール
-RUN sudo pacman -S --noconfirm \
+RUN sudo pacman -Syy \
+    && sudo pacman -S --noconfirm \
     git go docker xsel neovim neofetch fish fzf fd bat zip unzip
 # yayインストール
 RUN git clone https://aur.archlinux.org/yay.git && cd yay && \
@@ -31,7 +31,8 @@ RUN . /opt/asdf-vm/asdf.sh \
     && asdf local python 3.9.14
 
 # プロジェクト特有のパッケージ
-RUN sudo pacman -S --noconfirm python-pipenv \
+RUN sudo pacman -Syy \
+    && sudo pacman -S --noconfirm python-pipenv \
     # https://stackoverflow.com/questions/7446187/no-module-named-pkg-resources
     && sudo pip install setuptools \
     && yay -S --noconfirm ngrok
