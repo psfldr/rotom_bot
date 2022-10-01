@@ -28,6 +28,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock 
       # https://qiita.com/Spritaro/items/f907a9b52cb78e4fbec0
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ~/.netrc:/home/devuser/.netrc:ro
 
     # Uncomment the next four lines if you will use a ptrace-based debugger like C++, Go, and Rust.
     # cap_add:
