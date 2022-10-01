@@ -25,7 +25,9 @@ services:
       - ..:/home/devuser/backup_slack:cached
 
       # Uncomment the next line to use Docker from inside the container. See https://aka.ms/vscode-remote/samples/docker-from-docker-compose for details.
-      # - /var/run/docker.sock:/var/run/docker.sock 
+      - /var/run/docker.sock:/var/run/docker.sock 
+      # https://qiita.com/Spritaro/items/f907a9b52cb78e4fbec0
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
 
     # Uncomment the next four lines if you will use a ptrace-based debugger like C++, Go, and Rust.
     # cap_add:
@@ -38,6 +40,8 @@ services:
 
     hostname: phoenix-backup_slack
     tty: true
+    environment:
+      - DISPLAY
 
   localstack:
     hostname: localstack

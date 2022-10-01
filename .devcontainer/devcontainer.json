@@ -53,5 +53,5 @@
 
 	// Uncomment to connect as a non-root user if you've added one. See https://aka.ms/vscode-remote/containers/non-root.
 	"remoteUser": "devuser",
-	"onCreateCommand": "CONFIG_FISH_NO_NEOFETCH= fish .devcontainer/bootstrap.fish"
+	"onCreateCommand": "fish .devcontainer/bootstrap.fish"
 }
