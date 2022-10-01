@@ -6,9 +6,11 @@ from rich.console import Console
 import colorama
 from colorama import Fore, Back, Style
 import coloredlogs
+import os
 
 from devtools.ssm_manager import SSMManager
 
+AWS_ENDPOINT_URL = os.environ['AWS_ENDPOINT_URL']
 colorama.init()
 console = Console()  # 
 
@@ -111,7 +113,7 @@ def invoke_lambda(obj: CommonParam, function_name: str) -> None:
     """LocalStack上の指定されたLambdaを実行します。"""
     full_function_name = f'backup-slack-local-{function_name}'
     execute_command([
-        'aws', '--profile=local', '--endpoint-url=http://localstack:4566',
+        'aws', f'--endpoint-url={AWS_ENDPOINT_URL}',
         'lambda', 'invoke', f'--function-name={full_function_name}', '/dev/stdout',
     ])
 
@@ -132,7 +134,7 @@ def invoke_api_request(obj: CommonParam, function_name: str) -> None:
     # それか、ngrokで設定した公開URLを叩くか？
 
     # execute_command([
-    #     'aws', '--profile=local', '--endpoint-url=http://localstack:4566',
+    #     'aws', f'--endpoint-url={AWS_ENDPOINT_URL}',
     #     'lambda', 'invoke', f'--function-name={full_function_name}', '/dev/stdout',
     # ])
 
@@ -140,30 +142,9 @@ def invoke_api_request(obj: CommonParam, function_name: str) -> None:
 @cli.command()
 @click.pass_obj
 @log_start_and_end
-def copy_param_to_local(obj: CommonParam) -> None:
-    """AWSのSSMからパラメータをLocalStackにコピーします。"""
-    ssm_manager = SSMManager(
-        prod_profile='prod',
-        local_profile='local',
-        local_endpoint='http://localstack:4566'
-    )
-    ssm_manager.copy_parameters(mode='prod_to_local', path='/Eggmuri/Local/Slack')
-
-
-@cli.command()
-@click.pass_obj
-@log_start_and_end
 def setup_notion_param(obj: CommonParam) -> None:
     """SSMに、Notionのバックアップ先のpage ID、DB IDを設定します。"""
-    ssm_manager = SSMManager(
-        prod_profile='prod',
-        local_profile='local',
-        local_endpoint='http://localstack:4566'
-    )
-    ssm_manager.setup_notion_param_prod()
-    ssm_manager.copy_parameters(mode='prod_to_prod', path='/eggmuri/prod/rotom_bot/notion/')
-    ssm_manager.copy_parameters(mode='prod_to_local', path='/eggmuri/local/rotom_bot/notion')
-    ssm_manager.copy_parameters(mode='prod_to_local', path='/eggmuri/local/rotom_bot/slack')
+    SSMManager().setup_notion_param_local()
 
 
 @cli.command()
@@ -180,19 +161,19 @@ def get_lambda_logs(obj: CommonParam, follow: bool, since: str, function_name: s
     if follow:
         logger.info('待機状態になり、最新のログを随時表示します。')
         args = [
-            'aws', '--profile=local', '--endpoint-url=http://localstack:4566',
+            'aws', f'--endpoint-url={AWS_ENDPOINT_URL}',
             'logs', 'tail', '--follow', f'/aws/lambda/{full_function_name}',
         ]
     elif since:
         logger.info(f'ログを最新の [{since}] 前から表示します。')
         args = [
-            'aws', '--profile=local', '--endpoint-url=http://localstack:4566',
+            'aws', f'--endpoint-url={AWS_ENDPOINT_URL}',
             'logs', 'tail', f'/aws/lambda/{full_function_name}', f'--since={since}'
         ]
     else:
         logger.info(f'最新のログストリームのログを表示します。')
         args = [
-            'aws', '--profile=local', '--endpoint-url=http://localstack:4566',
+            'aws', f'--endpoint-url={AWS_ENDPOINT_URL}',
             'logs', 'describe-log-streams',
             '--log-group-name', f'/aws/lambda/{full_function_name}',
             '--max-items', '1',
@@ -203,7 +184,7 @@ def get_lambda_logs(obj: CommonParam, follow: bool, since: str, function_name: s
         latest_log_stream_name = check_output(args, universal_newlines=True).split('\n')[0]
         logger.info(f'{latest_log_stream_name=}')
         args = [
-            'aws', '--profile=local', '--endpoint-url=http://localstack:4566',
+            'aws', f'--endpoint-url={AWS_ENDPOINT_URL}',
             'logs', 'tail', f'/aws/lambda/{full_function_name}',
             '--log-stream-names', latest_log_stream_name,
             '--since', '30d'
@@ -218,13 +199,12 @@ def get_lambda_logs(obj: CommonParam, follow: bool, since: str, function_name: s
 @log_start_and_end
 def put_parameter(obj: CommonParam, name: str, value: str) -> None:
     """SSMにパラメータを登録します。"""
-    full_path = f'/eggmuri/local/rotom_bot/{name}'
+    full_path = f'/rotom_bot/local/{name}'
     logger: logging.Logger = logging.getLogger(LOGGING_APP_NAME)
     logger.info(f'{full_path=}')
     logger.info(f'{value=}')
     args = [
-        # 'aws', '--profile=local', '--endpoint-url=http://localstack:4566',
-        'aws', '--profile=prod',
+        'aws', f'--endpoint-url={AWS_ENDPOINT_URL}',
         'ssm', 'put-parameter', f'--name={full_path}', f'--value={value}',
         '--type=String', '--overwrite',
     ]

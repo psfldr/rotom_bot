@@ -25,10 +25,8 @@ RUN . /opt/asdf-vm/asdf.sh \
     && asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git \
     && asdf install awscli 2.7.35 \
     && asdf install nodejs 16.17.0 \
-    && asdf install python 3.9.14 \
     && asdf local awscli 2.7.35 \
-    && asdf local nodejs 16.17.0 \
-    && asdf local python 3.9.14
+    && asdf local nodejs 16.17.0
 
 # プロジェクト特有のパッケージ
 RUN sudo pacman -Syy \
