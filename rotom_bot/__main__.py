@@ -1,6 +1,6 @@
 import sys
 
-from backup_slack.backup_slack import fib
+from rotom_bot.rotom_bot import fib
 
 if __name__ == "__main__":
     n = int(sys.argv[1])

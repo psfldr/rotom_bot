@@ -2,9 +2,10 @@ import functools
 import os
 import time
 from typing import Any
+from boto3.session import Session
 
-from backup_slack.backup_message_notion import BackupMessageNotionClient
-from backup_slack.backup_message_notion import BackupMessageNotionSetting
+from rotom_bot.backup_message_notion import BackupMessageNotionClient
+from rotom_bot.backup_message_notion import BackupMessageNotionSetting
 from notion_client import Client
 
 
@@ -13,7 +14,9 @@ class TestBackupMessageNotionClient():
     client: BackupMessageNotionClient
     BACKUP_PARENT_PAGE_NAME: str = 'Slackバックアップ'
     BACKUP_PARENT_PAGE_ID: str
-    raw_client = Client(auth=os.environ["NOTION_API_KEY"])
+    raw_client: Client
+    prod_session = Session(profile_name='prod')
+    prod_ssm_client = prod_session.client('ssm')
 
     def get_child_database_id(self, database_name: str) -> str:
         """BACKUP_PARENT_PAGE_NAMEを親に持つデータベースのIDを取得する
@@ -33,6 +36,8 @@ class TestBackupMessageNotionClient():
 
 
     def setup(self) -> None:
+        path = '/eggmuri/prod/rotom_bot/notion/NOTION_API_KEY'
+        os.environ["NOTION_API_KEY"] = self.prod_ssm_client.get_parameter(Name=path)['Parameter']['Value']
         self.raw_client = Client(auth=os.environ["NOTION_API_KEY"])
         self.BACKUP_PARENT_PAGE_ID: str = self.raw_client.search(query=self.BACKUP_PARENT_PAGE_NAME)['results'][0]['id']  # type: ignore
         setting: BackupMessageNotionSetting = {

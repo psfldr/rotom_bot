@@ -1,4 +1,4 @@
-# backup_slack
+# rotom_bot
 
 ## Setup
 ```sh

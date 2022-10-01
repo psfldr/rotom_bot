@@ -1,6 +1,6 @@
 [run]
-source = backup_slack
-omit = backup_slack/__main__.py
+source = rotom_bot
+omit = rotom_bot/__main__.py
 
 [report]
 exclude_lines =

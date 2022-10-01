@@ -9,7 +9,7 @@ RUN useradd -m -G wheel,docker --shell /bin/bash devuser
 RUN echo "%docker ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 RUN echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 USER devuser
-WORKDIR /home/devuser/backup_slack
+WORKDIR /home/devuser/rotom_bot
 # 一般的なパッケージインストール
 RUN sudo pacman -Syy \
     && sudo pacman -S --noconfirm \

@@ -34,5 +34,5 @@ USER appuser
 COPY . .
 
 # Run the executable
-ENTRYPOINT ["python", "-m", "backup_slack"]
+ENTRYPOINT ["python", "-m", "rotom_bot"]
 CMD ["10"]

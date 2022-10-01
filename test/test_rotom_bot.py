@@ -1,4 +1,4 @@
-from backup_slack.backup_slack import fib
+from rotom_bot.rotom_bot import fib
 
 
 def test_fib() -> None:

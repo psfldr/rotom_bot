@@ -9,8 +9,6 @@ python_version = "3.9.14"
 [packages]
 slack-bolt = "*"
 notion-client = "*"
-certifi = {editable = true, path = "."}
-wrapt = {editable = true, path = "."}
 
 [dev-packages]
 pytest-mock = "*"

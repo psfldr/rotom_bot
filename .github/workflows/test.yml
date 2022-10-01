@@ -34,8 +34,8 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Build docker image
-        run: docker build . -t backup_slack:test
+        run: docker build . -t rotom_bot:test
 
       - name: Smoke test docker image
         run: |
-          docker run --rm backup_slack:test 10
+          docker run --rm rotom_bot:test 10
