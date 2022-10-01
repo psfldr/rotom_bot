@@ -44,13 +44,7 @@ services:
     environment:
       - DISPLAY
 
-  localstack:
-    hostname: localstack
-    image: localstack/localstack:latest
-    ports:
-      - "4566:4566"
-    environment:
-      - HOSTNAME=localstack
-      - DEFAULT_REGION=ap-northeast-1
-      # - DOCKER_HOST=unix:///var/run/docker.sock
-      # - DEBUG=1
+networks:
+  default:
+    name: localstack_compose_share
+    external: true
