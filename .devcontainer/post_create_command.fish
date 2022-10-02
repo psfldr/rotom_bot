@@ -1,6 +1,4 @@
 # /usr/bin/fish
-sudo chmod 666 /var/run/docker.sock
-
 # 設定ファイルコピー
 mkdir -p ~/.config/fish/
 mkdir -p ~/.config/neofetch/
