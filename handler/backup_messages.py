@@ -8,6 +8,7 @@ import boto3
 # FaaS で実行するときは process_before_response を True にする必要があります
 app = App(process_before_response=True)
 
+
 def respond_to_slack_within_3_seconds(body, ack):
     text = body.get("text")
     if text is None or len(text) == 0:
@@ -15,14 +16,18 @@ def respond_to_slack_within_3_seconds(body, ack):
     else:
         ack(f"Accepted! (task: {body['text']})")
 
+
 import time
+
+
 def run_long_process(respond, body):
     time.sleep(5)  # 3 秒より長い時間を指定します
     respond(f"Completed! (task: {body['text']})")
 
+
 app.command("/start-process")(
     ack=respond_to_slack_within_3_seconds,  # `ack()` の呼び出しを担当します
-    lazy=[run_long_process]  # `ack()` の呼び出しはできません。複数の関数を持たせることができます。
+    lazy=[run_long_process],  # `ack()` の呼び出しはできません。複数の関数を持たせることができます。
 )
 
 
@@ -34,15 +39,16 @@ def patched_boto3_client(*args, **kwargs):  # type: ignore
     # https://docs.localstack.cloud/integrations/sdks/python/
     LOCALSTACK_HOSTNAME = os.environ.get("LOCALSTACK_HOSTNAME")
     EDGE_PORT = os.environ.get("EDGE_PORT")
-    if 'endpoint_url' not in kwargs and LOCALSTACK_HOSTNAME:
-        kwargs['endpoint_url'] = f'http://{LOCALSTACK_HOSTNAME}:{EDGE_PORT}'
+    if "endpoint_url" not in kwargs and LOCALSTACK_HOSTNAME:
+        kwargs["endpoint_url"] = f"http://{LOCALSTACK_HOSTNAME}:{EDGE_PORT}"
     return boto3_client_alias(*args, **kwargs)
 
 
-@patch('boto3.client', patched_boto3_client)
+@patch("boto3.client", patched_boto3_client)
 def handler(event, context):
     slack_handler = SlackRequestHandler(app=app)
     return slack_handler.handle(event, context)
+
 
 # def lambda_handler(event, context):  # type: ignore
 #     # Notionクライアントを取得

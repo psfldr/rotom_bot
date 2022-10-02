@@ -3,6 +3,7 @@ from typing import Any, Callable
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 
 from slack_bolt import App
+
 # ボットトークンと署名シークレットを使ってアプリを初期化します
 app = App(token=os.environ.get("SLACK_BOT_TOKEN"))
 
@@ -17,13 +18,14 @@ def message_hello(message, say) -> None:  # type: ignore
                 "text": {"type": "mrkdwn", "text": f"Hey there <@{message['user']}>!"},
                 "accessory": {
                     "type": "button",
-                    "text": {"type": "plain_text", "text":"Click Me"},
-                    "action_id": "button_click"
-                }
+                    "text": {"type": "plain_text", "text": "Click Me"},
+                    "action_id": "button_click",
+                },
             }
         ],
-        text=f"Hey there <@{message['user']}>!"
+        text=f"Hey there <@{message['user']}>!",
     )
+
 
 @app.action("button_click")
 def action_button_click(body, ack, say) -> None:  # type: ignore
@@ -31,6 +33,7 @@ def action_button_click(body, ack, say) -> None:  # type: ignore
     ack()
     # チャンネルにメッセージを投稿します
     say(f"<@{body['user']['id']}> clicked the button")
+
 
 # アプリを起動します
 if __name__ == "__main__":
