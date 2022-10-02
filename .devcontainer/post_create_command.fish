@@ -12,6 +12,7 @@ ln -sf ~/rotom_bot/.devcontainer/phoenix_files/.aws/ ~/.aws
 curl -sL https://git.io/fisher | source && fisher install jorgebucaran/fisher
 fisher install PatrickF1/fzf.fish
 fisher install oh-my-fish/plugin-pbcopy
+fisher install edc/bass
 
 source ~/.config/fish/config.fish
 

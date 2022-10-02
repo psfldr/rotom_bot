@@ -12,5 +12,6 @@
         79
     ],
     "python.terminal.activateEnvironment": false,
-    "python.formatting.provider": "black"
+    "python.formatting.provider": "black",
+    "python.envFile": "${workspaceFolder}/psfldr-aws.env"
 }
