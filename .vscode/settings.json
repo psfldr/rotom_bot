@@ -11,5 +11,6 @@
     "editor.rulers": [
         79
     ],
-    "python.terminal.activateEnvironment": false
+    "python.terminal.activateEnvironment": false,
+    "python.formatting.provider": "black"
 }
