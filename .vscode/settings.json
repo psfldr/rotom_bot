@@ -2,7 +2,10 @@
     "python.testing.pytestArgs": [
         "test",
         "-rP",
-        "-vv"
+        "-vv",
+        "--cov",
+        "--cov-report",
+        "xml"
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
@@ -13,5 +16,7 @@
     ],
     "python.terminal.activateEnvironment": false,
     "python.formatting.provider": "black",
-    "python.envFile": "${workspaceFolder}/psfldr-aws.env"
+    "python.envFile": "${workspaceFolder}/psfldr-aws.env",
+    "coverage-gutters.showLineCoverage": true,
+    "coverage-gutters.showRulerCoverage": true
 }

@@ -36,7 +36,10 @@
 		"ms-python.python",
 		"ms-toolsai.jupyter-renderers",
 		"yzhang.markdown-all-in-one",
-		"TakumiI.markdowntable"
+		"TakumiI.markdowntable",
+		"ryanluker.vscode-coverage-gutters",
+		"ms-vscode-remote.remote-containers",
+		"amazonwebservices.aws-toolkit-vscode"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
@@ -53,7 +56,7 @@
 
 	// Uncomment to connect as a non-root user if you've added one. See https://aka.ms/vscode-remote/containers/non-root.
 	"remoteUser": "devuser",
-	"initializeCommand": "AWS_SESSION_TOKEN_TTL=4h aws-vault exec psfldr-aws --region ap-northeast-1 -- env | grep AWS > psfldr-aws.env && echo 'AWS_ENDPOINT_URL=http://localstack:4566' >> psfldr-aws.env",
+	"initializeCommand": "source .devcontainer/initialize_command.sh",
 	"postCreateCommand": "fish .devcontainer/post_create_command.fish",
 	"postStartCommand": "fish .devcontainer/post_start_command.fish"
 }

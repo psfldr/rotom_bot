@@ -1,19 +1,16 @@
 # syntax=docker/dockerfile:1
 FROM archlinux/archlinux:latest
 # base-develパッケージインストール
-RUN pacman -Syy \
-    && pacman -S --noconfirm base-devel
-# ユーザー作成
-RUN groupadd docker
-RUN useradd -m -G wheel,docker --shell /bin/bash devuser
-RUN echo "%docker ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-RUN echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-USER devuser
-WORKDIR /home/devuser/rotom_bot
 # 一般的なパッケージインストール
-RUN sudo pacman -Syy \
-    && sudo pacman -S --noconfirm \
-    git go docker xsel neovim neofetch fish fzf fd bat zip unzip
+RUN pacman -Syy \
+    && pacman -S --noconfirm \
+    base-devel git go docker docker-compose xsel neovim neofetch fish fzf fd bat zip unzip
+
+# ユーザー作成
+RUN useradd -m -G docker --shell /bin/bash devuser \
+    && echo "%docker ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+USER devuser
+WORKDIR /home/devuser/
 # yayインストール
 RUN git clone https://aur.archlinux.org/yay.git && cd yay && \
     makepkg -si --noconfirm && cd ../ && rm -r yay
@@ -34,4 +31,4 @@ RUN sudo pacman -Syy \
     && sudo pacman -S --noconfirm python python-pip python-pipenv \
     && pip install setuptools \
     # https://stackoverflow.com/questions/7446187/no-module-named-pkg-resources
-    && yay -S --noconfirm ngrok git-secrets
+    && yay -S --noconfirm git-secrets act jq

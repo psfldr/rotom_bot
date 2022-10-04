@@ -1,10 +1,10 @@
-from typing import IO, Callable, List, TypeVar, TypedDict
+from typing import Callable, List, TypeVar, TypedDict
 import click
 import logging
 from subprocess import Popen, PIPE, STDOUT, check_output
 from rich.console import Console
 import colorama
-from colorama import Fore, Back, Style
+from colorama import Fore, Style
 import coloredlogs
 import os
 
@@ -65,7 +65,7 @@ def execute_command(args: List[str]) -> None:
     logger: logging.Logger = logging.getLogger(LOGGING_APP_NAME)
     logger.info(f"{Fore.BLUE}⚡ 別プロセスの処理開始: {command=}{Style.RESET_ALL}")
     status_message = f"[blue]別プロセスで処理中: {command=}\n"
-    with console.status(status_message, spinner="dots12") as status:
+    with console.status(status_message, spinner="dots12"):
         with Popen(args, stdout=PIPE, stderr=STDOUT, universal_newlines=True) as proc:
             for line in proc.stdout or []:
                 line_without_newline = line.rstrip("\n")
@@ -148,7 +148,7 @@ def invoke_lambda(obj: CommonParam, function_name: str) -> None:
 @log_start_and_end
 def invoke_api_request(obj: CommonParam, function_name: str) -> None:
     """LocalStack上の指定されたAPIへリクエストする試験をします。"""
-    full_function_name = f"backup-slack-local-{function_name}"
+    # full_function_name = f"backup-slack-local-{function_name}"
 
     # TODO
     # rest-api-idと、resource-idがわかればtest-invoke-methodが使える
@@ -209,7 +209,7 @@ def get_lambda_logs(
             f"--since={since}",
         ]
     else:
-        logger.info(f"最新のログストリームのログを表示します。")
+        logger.info("最新のログストリームのログを表示します。")
         args = [
             "aws",
             "--profile=local",
@@ -259,9 +259,7 @@ def put_parameter(obj: CommonParam, name: str, value: str) -> None:
     logger.info(f"{full_path=}")
     logger.info(f"{value=}")
     args = [
-        "aws",
-        "--profile=local",
-        f"--endpoint-url={AWS_ENDPOINT_URL}",
+        "awslocal",
         "ssm",
         "put-parameter",
         f"--name={full_path}",

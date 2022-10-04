@@ -9,7 +9,7 @@ import boto3
 app = App(process_before_response=True)
 
 
-def respond_to_slack_within_3_seconds(body, ack):
+def respond_to_slack_within_3_seconds(body, ack):  # type: ignore
     text = body.get("text")
     if text is None or len(text) == 0:
         ack(":x: Usage: /start-process (description here)")
@@ -17,10 +17,7 @@ def respond_to_slack_within_3_seconds(body, ack):
         ack(f"Accepted! (task: {body['text']})")
 
 
-import time
-
-
-def run_long_process(respond, body):
+def run_long_process(respond, body):  # type: ignore
     time.sleep(5)  # 3 秒より長い時間を指定します
     respond(f"Completed! (task: {body['text']})")
 
@@ -45,7 +42,7 @@ def patched_boto3_client(*args, **kwargs):  # type: ignore
 
 
 @patch("boto3.client", patched_boto3_client)
-def handler(event, context):
+def handler(event, context):  # type: ignore
     slack_handler = SlackRequestHandler(app=app)
     return slack_handler.handle(event, context)
 

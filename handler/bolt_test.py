@@ -1,11 +1,11 @@
 import os
-from typing import Any, Callable
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 
 from slack_bolt import App
 
 # ボットトークンと署名シークレットを使ってアプリを初期化します
 app = App(token=os.environ.get("SLACK_BOT_TOKEN"))
+
 
 # 'hello' を含むメッセージをリッスンします
 @app.message("hello")

@@ -3,7 +3,7 @@ import boto3
 from boto3.session import Session
 import notion_client
 import os
-from colorama import Fore, Back, Style
+from colorama import Style
 
 LOGGING_APP_NAME = "Devtools"
 
@@ -56,7 +56,7 @@ class SSMManager:
 
     def setup_notion_param_local(self) -> None:
         logger: logging.Logger = logging.getLogger(LOGGING_APP_NAME)
-        logger.info(f"バックアップの親ページ名からIDを取得し、SSMに登録します。")
+        logger.info("バックアップの親ページ名からIDを取得し、SSMに登録します。")
         path_format = "/rotom_bot/local/notion/{}"
         parent_page_name_path = path_format.format("BACKUP_PARENT_PAGE_NAME")
         parent_page_name: str = self.get_parameter(parent_page_name_path)
@@ -69,7 +69,7 @@ class SSMManager:
             Tier="Standard",
             DataType="text",
         )
-        logger.info(f"DB名からIDを取得し、SSMに登録します。")
+        logger.info("DB名からIDを取得し、SSMに登録します。")
         database_name_keys = [
             "BACKUP_MESSAGES_DATABASE_NAME",
             "BACKUP_CHANNELS_DATABASE_NAME",

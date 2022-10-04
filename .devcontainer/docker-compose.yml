@@ -39,12 +39,6 @@ services:
     # Overrides default command so things don't shut down after the process ends.
     command: /bin/sh -c "while sleep 1000; do :; done"
 
-    hostname: phoenix-rotom_bot
     tty: true
     environment:
       - DISPLAY
-
-networks:
-  default:
-    name: localstack_compose_share
-    external: true
