@@ -8,7 +8,7 @@ from colorama import Fore, Style
 import coloredlogs
 import os
 
-from devtools.ssm_manager import SSMManager
+from devtools.ssm_util import SSMUtil
 
 AWS_ENDPOINT_URL = os.environ["AWS_ENDPOINT_URL"]
 colorama.init()
@@ -109,7 +109,7 @@ def setup_ssm_parameters(obj: CommonParam) -> None:
     """必要なSSMパラメータを登録します"""
     env: str = "local"
     logger: logging.Logger = logging.getLogger(LOGGING_APP_NAME)
-    ssm = SSMManager()
+    ssm = SSMUtil()
     required_parameters = [
         f"/rotom_bot/{env}/notion/NOTION_API_KEY",
         f"/rotom_bot/{env}/NGROK_AUTHTOKEN",
@@ -155,6 +155,21 @@ def setup_ssm_parameters(obj: CommonParam) -> None:
             f"{Style.DIM}SSM登録 {i}/{len(db_name_parameters)} {db_id_path=}{Style.RESET_ALL}"
         )
         ssm.put_parameter(db_id_path, db_id, "prod")
+
+
+@cli.command()
+@click.pass_obj
+@log_start_and_end
+def sync_ssm_parameters_to_localstack(obj: CommonParam) -> None:
+    """AWSのSSMパラメータのうちlocalのパスのものをlocalstackにコピーします"""
+    logger: logging.Logger = logging.getLogger(LOGGING_APP_NAME)
+    ssm = SSMUtil()
+    logger.info("AWSのSSMからパラメータを取得します")
+    params = ssm.get_parameter_by_path("/rotom_bot/local", "prod")
+    logger.info(f"{Style.DIM}{params.keys()=}{Style.RESET_ALL}")
+    logger.info("localstackに登録します")
+    for k, v in params.items():
+        ssm.put_parameter(k, v, "local")
 
 
 # @cli.command()
@@ -223,7 +238,7 @@ def setup_ssm_parameters(obj: CommonParam) -> None:
 # @log_start_and_end
 # def setup_notion_param(obj: CommonParam) -> None:
 #     """SSMに、Notionのバックアップ先のpage ID、DB IDを設定します。"""
-#     SSMManager().setup_notion_param_local()
+#     SSMUtil().setup_notion_param_local()
 
 
 # @cli.command()

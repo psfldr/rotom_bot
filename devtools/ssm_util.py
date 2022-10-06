@@ -5,7 +5,7 @@ import notion_client
 import os
 
 
-class SSMManager:
+class SSMUtil:
     notion_client: notion_client.Client
     client: dict[str, boto3.client] = {}
 
@@ -24,7 +24,7 @@ class SSMManager:
         Returns:
             list[str]: パラメータ名のリスト
         """
-        paginator = self.client[env].get_paginator('describe_parameters')
+        paginator = self.client[env].get_paginator("describe_parameters")
         names: list[str] = []
         for response in paginator.paginate():
             names += [p["Name"] for p in response["Parameters"]]
@@ -55,6 +55,15 @@ class SSMManager:
         self.client[env].put_parameter(
             Name=path, Value=value, Overwrite=True, Type="String"
         )
+
+    def get_parameter_by_path(
+        self, path: str, env: Literal["prod", "local"]
+    ) -> dict[str, str]:
+        paginator = self.client[env].get_paginator("get_parameters_by_path")
+        params: dict[str, str] = {}
+        for response in paginator.paginate(Path=path, Recursive=True):
+            params |= {p["Name"]: p["Value"] for p in response["Parameters"]}
+        return params
 
     def set_notion_client(self, api_key: str) -> None:
         self.notion_client = notion_client.Client(auth=api_key)
