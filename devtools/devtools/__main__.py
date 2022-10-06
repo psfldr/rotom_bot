@@ -65,11 +65,16 @@ def execute_command(args: List[str]) -> None:
     logger: logging.Logger = logging.getLogger(LOGGING_APP_NAME)
     logger.info(f"{Fore.BLUE}⚡ 別プロセスの処理開始: {command=}{Style.RESET_ALL}")
     status_message = f"[blue]別プロセスで処理中: {command=}\n"
-    with console.status(status_message, spinner="dots12"):
+    with console.status(status_message, spinner="simpleDotsScrolling"):
         with Popen(args, stdout=PIPE, stderr=STDOUT, universal_newlines=True) as proc:
-            for line in proc.stdout or []:
-                line_without_newline = line.rstrip("\n")
-                logger.info(f"{Style.DIM}{line_without_newline}{Style.RESET_ALL}")
+            try:
+                for line in proc.stdout or []:
+                    line_without_newline = line.rstrip("\n")
+                    logger.info(f"{Style.DIM}{line_without_newline}{Style.RESET_ALL}")
+            except KeyboardInterrupt:
+                for line in proc.stdout or []:
+                    line_without_newline = line.rstrip("\n")
+                    logger.info(f"{Style.DIM}{line_without_newline}{Style.RESET_ALL}")
     returncode = proc.returncode
     if returncode == 0:
         logger.info(f"{Fore.BLUE}✔ 別プロセスの処理が正常終了: {command=}{Style.RESET_ALL}")
@@ -92,6 +97,31 @@ def cli(ctx: click.Context, debug: bool) -> None:
     ctx.obj = param
     logger: logging.Logger = logging.getLogger(LOGGING_APP_NAME)
     logger.setLevel(logging.DEBUG if debug else logging.INFO)
+
+
+@cli.command()
+@click.option("--background", "-d", is_flag=True, required=False, help="バックグラウンドで起動する")
+@click.pass_obj
+@log_start_and_end
+def start_localstack(obj: CommonParam, background: bool) -> None:
+    """LocalStackを起動します"""
+    args: list[str] = [
+        "docker-compose",
+        "--project-directory",
+        "localstack",
+        "up",
+    ]
+    if background:
+        args.append("-d")
+    execute_command(args)
+
+
+@cli.command()
+@click.pass_obj
+@log_start_and_end
+def stop_localstack(obj: CommonParam) -> None:
+    """LocalStackを停止します"""
+    execute_command(["docker-compose", "--project-directory", "localstack", "down"])
 
 
 @cli.command()

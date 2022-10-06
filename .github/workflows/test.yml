@@ -12,12 +12,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      # - name: Configure AWS credentials
-      #   uses: aws-actions/configure-aws-credentials@v1
-      #   with:
-      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     aws-region: ap-northeast-1
+      - name: Install docker-compose
+        if: ${{ env.ACT }}
+        run: |
+          sudo apt-get update &&
+          apt-get install -y docker-compose
+          docker --version
+          docker-compose -v
 
       - name: Copy aws config
         run: |
@@ -28,26 +29,28 @@ jobs:
         with:
           python-version: 3.9.14
 
-      - name: Start LocalStack
-        run: |
-          # install LocalStack cli and awslocal
-          pip install localstack awscli-local[ver1]
-          # Make sure to pull the latest version of the image
-          docker pull localstack/localstack
-          # Start LocalStack in the background
-          localstack start -d
-          # Wait 30 seconds for the LocalStack container to become ready before timing out
-          echo "Waiting for LocalStack startup..."
-          localstack wait -t 30
-          echo "Startup complete"          
-
       - name: Install dependencies with pipenv
         run: |
           pip install pipenv
-          pipenv install --deploy --dev
+          pipenv install --dev
+
+      - name: Setup Localstack
+        run: |
+          cd localstack
+          docker-compose up -d
+          cd ..
+          pipenv run devtools setup-ssm-parameters
+          pipenv run devtools sync-ssm-parameters-to-localstack
 
       - run: pipenv run isort --recursive --diff .
       - run: pipenv run black --check .
       - run: pipenv run flake8
       - run: pipenv run mypy
       - run: pipenv run pytest --cov # --cov-fail-under=100
+
+      - name: Stop Localstack
+        if: ${{ env.ACT }}
+        run: |
+          cd localstack
+          docker-compose down
+          cd ..
