@@ -42,3 +42,4 @@ services:
     tty: true
     environment:
       - DISPLAY
+    network_mode: host

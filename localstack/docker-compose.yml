@@ -1,20 +1,9 @@
 version: '2.4'
 services:
   localstack:
-    hostname: localstack
     image: localstack/localstack:latest
     ports:
       - "4566:4566"
-    environment:
-      # - HOSTNAME=localstack
-      - DEFAULT_REGION=ap-northeast-1
-      - DATA_DIR=/tmp/localstack/data
-      - DOCKER_HOST=unix:///var/run/docker.sock
     volumes:
       # - "./localstack:/tmp/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
-
-networks:
-  default:
-    name: rotom_bot_devcontainer_default
-    external: true
