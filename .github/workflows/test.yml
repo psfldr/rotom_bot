@@ -12,17 +12,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install docker-compose
+      - name: nektos/act specific settings
         if: ${{ env.ACT }}
         run: |
           sudo apt-get update &&
           apt-get install -y docker-compose
           docker --version
           docker-compose -v
-
-      - name: Copy aws config
-        run: |
-          cp -r .devcontainer/phoenix_files/.aws ~/
 
       - name: Setup Python
         uses: actions/setup-python@v4

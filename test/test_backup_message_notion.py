@@ -2,11 +2,14 @@ import functools
 import os
 import time
 from typing import Any
-from boto3.session import Session
 
-from rotom_bot.backup_message_notion import BackupMessageNotionClient
-from rotom_bot.backup_message_notion import BackupMessageNotionSetting
+import boto3
 from notion_client import Client
+
+from rotom_bot.backup_message_notion import (
+    BackupMessageNotionClient,
+    BackupMessageNotionSetting,
+)
 
 
 class TestBackupMessageNotionClient:
@@ -14,8 +17,12 @@ class TestBackupMessageNotionClient:
     BACKUP_PARENT_PAGE_NAME: str = "Slackバックアップ"
     BACKUP_PARENT_PAGE_ID: str
     raw_client: Client
-    session = Session(profile_name="local")
-    ssm_client = session.client("ssm", endpoint_url=os.environ["AWS_ENDPOINT_URL"])
+    ssm_client = boto3.client(
+        "ssm",
+        endpoint_url=os.environ["AWS_ENDPOINT_URL"],
+        aws_access_key_id="test",
+        aws_secret_access_key="test",
+    )
 
     def get_child_database_id(self, database_name: str) -> str:
         """BACKUP_PARENT_PAGE_NAMEを親に持つデータベースのIDを取得する

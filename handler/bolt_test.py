@@ -1,7 +1,7 @@
 import os
-from slack_bolt.adapter.socket_mode import SocketModeHandler
 
 from slack_bolt import App
+from slack_bolt.adapter.socket_mode import SocketModeHandler
 
 # ボットトークンと署名シークレットを使ってアプリを初期化します
 app = App(token=os.environ.get("SLACK_BOT_TOKEN"))

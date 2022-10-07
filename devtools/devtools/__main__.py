@@ -1,12 +1,13 @@
-from typing import Callable, List, TypeVar, TypedDict
-import click
 import logging
-from subprocess import Popen, PIPE, STDOUT
-from rich.console import Console
-import colorama
-from colorama import Fore, Style
-import coloredlogs
 import os
+from subprocess import PIPE, STDOUT, Popen
+from typing import Callable, List, TypedDict, TypeVar
+
+import click
+import colorama
+import coloredlogs
+from colorama import Fore, Style
+from rich.console import Console
 
 from devtools.ssm_util import SSMUtil
 

@@ -1,9 +1,10 @@
 import os
-from slack_bolt import App
-from slack_bolt.adapter.aws_lambda import SlackRequestHandler
 import time
 from unittest.mock import patch
+
 import boto3
+from slack_bolt import App
+from slack_bolt.adapter.aws_lambda import SlackRequestHandler
 
 # FaaS で実行するときは process_before_response を True にする必要があります
 app = App(process_before_response=True)

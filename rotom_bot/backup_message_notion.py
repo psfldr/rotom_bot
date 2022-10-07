@@ -1,7 +1,7 @@
 import os
+from typing import Any, TypedDict
+
 from notion_client import Client
-from typing import Any
-from typing import TypedDict
 
 
 class BackupMessageNotionSetting(TypedDict):

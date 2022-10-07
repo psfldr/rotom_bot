@@ -1,8 +1,8 @@
-from typing import Literal
-import boto3
-from boto3.session import Session
-import notion_client
 import os
+from typing import Literal
+
+import boto3
+import notion_client
 
 
 class SSMUtil:
@@ -11,9 +11,11 @@ class SSMUtil:
 
     def __init__(self) -> None:
         # ローカル環境クライアント
-        session = Session(profile_name="local")
-        self.client["local"] = session.client(
-            "ssm", endpoint_url=os.environ["AWS_ENDPOINT_URL"]
+        self.client["local"] = boto3.client(
+            "ssm",
+            endpoint_url=os.environ["AWS_ENDPOINT_URL"],
+            aws_access_key_id="test",
+            aws_secret_access_key="test",
         )
         self.client["prod"] = boto3.client("ssm")
         # Notionクライアント
