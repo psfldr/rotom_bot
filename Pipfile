@@ -27,4 +27,5 @@ rich = "*"
 inquirer = "*"
 click = "*"
 boto3 = "*"
+invoke = "*"
 devtools = {editable = true, path = "./devtools"}
