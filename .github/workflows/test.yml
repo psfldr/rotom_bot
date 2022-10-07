@@ -25,28 +25,14 @@ jobs:
         with:
           python-version: 3.9.14
 
-      - name: Install dependencies with pipenv
+      - name: run all tests
         run: |
           pip install pipenv
           pipenv install --dev
+          pipenv run devtools run-test
 
-      - name: Setup Localstack
-        run: |
-          cd localstack
-          docker-compose up -d
-          cd ..
-          pipenv run devtools setup-ssm-parameters
-          pipenv run devtools sync-ssm-parameters-to-localstack
-
-      - run: pipenv run isort --recursive --diff .
-      - run: pipenv run black --check .
-      - run: pipenv run flake8
-      - run: pipenv run mypy
-      - run: pipenv run pytest --cov # --cov-fail-under=100
-
-      - name: Stop Localstack
-        if: ${{ env.ACT }}
-        run: |
-          cd localstack
-          docker-compose down
-          cd ..
+      # - run: pipenv run isort --recursive --diff .
+      # - run: pipenv run black --check .
+      # - run: pipenv run flake8
+      # - run: pipenv run mypy
+      # - run: pipenv run pytest --cov # --cov-fail-under=100

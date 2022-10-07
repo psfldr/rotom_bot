@@ -1,58 +1,8 @@
+from .task_util import execute_command, LOGGING_APP_NAME
+from .ssm_util import SSMUtil
+from invoke import call, run, task, Collection
 import logging
-import os
-from subprocess import PIPE, STDOUT, Popen
-from typing import List
-
-from invoke import call, task, Collection
-import colorama
-import coloredlogs
-from colorama import Fore, Style
-from rich.console import Console
-
-from devtools.ssm_util import SSMUtil
-
-AWS_ENDPOINT_URL = os.environ["AWS_ENDPOINT_URL"]
-colorama.init()
-console = Console()  #
-
-# ログ
-LOGGING_APP_NAME = "Devtools"
-logger: logging.Logger = logging.getLogger(LOGGING_APP_NAME)
-coloredlogs.install(
-    level=logging.DEBUG,
-    fmt="%(asctime)s %(levelname)s %(message)s",
-    datefmt="[%y-%m-%d %H:%M:%S]",
-    logger=logger,
-)
-
-
-def execute_command(args: List[str]) -> None:
-    """コマンドを別プロセスで実行する。
-
-    Args:
-        args (list[str]): コマンドの引数
-    """
-    command = " ".join(args)
-    logger: logging.Logger = logging.getLogger(LOGGING_APP_NAME)
-    logger.info(f"{Fore.BLUE}⚡ 別プロセスの処理開始: {command=}{Style.RESET_ALL}")
-    status_message = f"[blue]別プロセスで処理中: {command=}\n"
-    with console.status(status_message, spinner="simpleDotsScrolling"):
-        with Popen(args, stdout=PIPE, stderr=STDOUT, universal_newlines=True) as proc:
-            try:
-                for line in proc.stdout or []:
-                    line_without_newline = line.rstrip("\n")
-                    logger.info(f"{Style.DIM}{line_without_newline}{Style.RESET_ALL}")
-            except KeyboardInterrupt:
-                for line in proc.stdout or []:
-                    line_without_newline = line.rstrip("\n")
-                    logger.info(f"{Style.DIM}{line_without_newline}{Style.RESET_ALL}")
-    returncode = proc.returncode
-    if returncode == 0:
-        logger.info(f"{Fore.BLUE}✔ 別プロセスの処理が正常終了: {command=}{Style.RESET_ALL}")
-    else:
-        logger.error(
-            f"{Fore.RED}❌ 別プロセスの処理が異常終了: {returncode=} {command=}{Style.RESET_ALL}"
-        )
+from colorama import Style
 
 
 @task  # type: ignore
@@ -60,19 +10,25 @@ def start_localstack(c, background=False):  # type: ignore
     """LocalStackを起動します"""
     args = [
         "docker-compose",
-        "--project-directory",
-        "localstack",
+        "--file",
+        "localstack/docker-compose.yml",
         "up",
     ]
     if background:
         args.append("-d")
-    execute_command(args)
+    run(" ".join(args), pty=True)
 
 
 @task  # type: ignore
 def stop_localstack(c):  # type: ignore
     """LocalStackを停止します"""
-    execute_command(["docker-compose", "--project-directory", "localstack", "down"])
+    args = [
+        "docker-compose",
+        "--file",
+        "localstack/docker-compose.yml",
+        "down",
+    ]
+    run(" ".join(args), pty=True)
 
 
 @task  # type: ignore
@@ -147,7 +103,7 @@ def deploy_local(c):  # type: ignore
     execute_command(["sls", "deploy", "--stage", "local", "--verbose"])
 
 
-ns = Collection()
+ns: Collection = Collection()
 ns.add_task(start_localstack)
 ns.add_task(stop_localstack)
 ns.add_task(setup_ssm_parameters)
