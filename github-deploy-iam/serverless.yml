@@ -94,6 +94,14 @@ resources:
                   Action:
                     - s3:List*
                   Resource: '*'
+                - Sid: ManageSSM
+                  Effect: Allow
+                  Action:
+                    - ssm:GetParameter*
+                    - ssm:DescribeParameters
+                    - ssm:PutParameter
+                  Resource:
+                    - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:*'
 
     GithubOidc:
       Type: AWS::IAM::OIDCProvider

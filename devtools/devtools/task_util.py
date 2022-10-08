@@ -23,18 +23,22 @@ coloredlogs.install(
 )
 
 
-def execute_command(args: List[str]) -> None:
+def execute_command(args: List[str], cwd: str = "") -> None:
     """コマンドをサブプロセスで実行する。
 
     Args:
         args (list[str]): コマンドの引数
+        cwd (str): 実行時のディレクトリ
     """
     command = " ".join(args)
     logger: logging.Logger = logging.getLogger(LOGGING_APP_NAME)
     logger.info(f"{Fore.BLUE}⚡ サブプロセスの処理開始: {command=}{Style.RESET_ALL}")
     status_message = f"[blue]サブプロセスで処理中: {command=}\n"
+    cwd = cwd or os.getcwd()
     with console.status(status_message, spinner="simpleDotsScrolling"):
-        with Popen(args, stdout=PIPE, stderr=STDOUT, universal_newlines=True) as proc:
+        with Popen(
+            args, stdout=PIPE, stderr=STDOUT, universal_newlines=True, cwd=cwd
+        ) as proc:
             try:
                 for line in proc.stdout or []:
                     line_without_newline = line.rstrip("\n")

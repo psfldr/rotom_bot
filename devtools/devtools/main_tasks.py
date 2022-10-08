@@ -102,7 +102,13 @@ def sync_ssm_parameters_to_localstack(c):  # type: ignore
 @task(sync_ssm_parameters_to_localstack)  # type: ignore
 def deploy_local(c):  # type: ignore
     """slsでLocalStackに対してデプロイを実行します。"""
-    execute_command(["sls", "deploy", "--stage", "local", "--verbose"])
+    run("sls deploy --stage local --verbose", pty=True)
+
+
+@task  # type: ignore
+def deploy_iam_for_deploy(c):  # type: ignore
+    """デプロイ処理用のロールのデプロイを実行します。"""
+    execute_command(["sls", "deploy", "--verbose"], cwd="github-deploy-iam/")
 
 
 ns: Collection = Collection()
@@ -111,3 +117,4 @@ ns.add_task(stop_localstack)
 ns.add_task(setup_ssm_parameters)
 ns.add_task(sync_ssm_parameters_to_localstack)
 ns.add_task(deploy_local)
+ns.add_task(deploy_iam_for_deploy)

@@ -26,7 +26,7 @@ def mypy(c):  # type: ignore
     run("mypy", pty=True)
 
 
-@task(sync_ssm_parameters_to_localstack, post=[stop_localstack])
+@task(sync_ssm_parameters_to_localstack)
 def pytest(c):  # type: ignore
     """pytestのテストを実行します。"""
     run("pytest --cov", pty=True)
