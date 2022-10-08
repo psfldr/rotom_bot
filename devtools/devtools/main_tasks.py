@@ -1,8 +1,10 @@
-from .task_util import execute_command, LOGGING_APP_NAME
-from .ssm_util import SSMUtil
-from invoke import call, run, task, Collection
 import logging
+
 from colorama import Style
+from invoke import Collection, call, run, task
+
+from .ssm_util import SSMUtil
+from .task_util import LOGGING_APP_NAME, execute_command
 
 
 @task  # type: ignore

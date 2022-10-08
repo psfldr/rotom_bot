@@ -1,0 +1,104 @@
+service: github-deploy-iam
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  region: ap-northeast-1
+
+plugins:
+  - serverless-localstack
+
+custom:
+  localstack:
+    stages: [local]
+  GithubOrg: psfldr
+  RepoName: rotom_bot
+  AppId: rotom_bot
+
+resources:
+  Resources:
+    Role:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Statement:
+            - Effect: Allow
+              Action: sts:AssumeRoleWithWebIdentity
+              Principal:
+                Federated: !Ref GithubOidc
+              Condition:
+                StringLike:
+                  token.actions.githubusercontent.com:sub: !Sub repo:${self:custom.GithubOrg}/${self:custom.RepoName}:*
+        Policies:
+          - PolicyName: ${self:custom.AppId}
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Sid: STSTest
+                  Effect: Allow
+                  Action:
+                    - sts:GetCallerIdentity
+                  Resource: '*'
+                - Sid: ValidateCloudFormation
+                  Effect: Allow
+                  Action:
+                    - cloudformation:ValidateTemplate
+                  Resource: '*'
+                - Sid: ExecuteCloudFormation
+                  Effect: Allow
+                  Action:
+                    - cloudformation:CreateChangeSet
+                    - cloudformation:CreateStack
+                    - cloudformation:DeleteChangeSet
+                    - cloudformation:DeleteStack
+                    - cloudformation:DescribeChangeSet
+                    - cloudformation:DescribeStackEvents
+                    - cloudformation:DescribeStackResource
+                    - cloudformation:DescribeStackResources
+                    - cloudformation:DescribeStacks
+                    - cloudformation:ExecuteChangeSet
+                    - cloudformation:ListStackResources
+                    - cloudformation:SetStackPolicy
+                    - cloudformation:UpdateStack
+                    - cloudformation:UpdateTerminationProtection
+                    - cloudformation:GetTemplate
+                  Resource:
+                    - !Sub 'arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${self:custom.AppId}-*/*'
+                - Sid: ReadLambda
+                  Effect: Allow
+                  Action:
+                    - lambda:Get*
+                    - lambda:List*
+                  Resource:
+                    - '*'
+                - Sid: ManageSlsDeploymentBucket
+                  Effect: Allow
+                  Action:
+                    - s3:CreateBucket
+                    - s3:DeleteBucket
+                    - s3:ListBucket
+                    - s3:PutObject
+                    - s3:GetObject
+                    - s3:DeleteObject
+                    - s3:GetBucketPolicy
+                    - s3:PutBucketPolicy
+                    - s3:DeleteBucketPolicy
+                    - s3:PutBucketAcl
+                    - s3:GetEncryptionConfiguration
+                    - s3:PutEncryptionConfiguration
+                  Resource:
+                    - !Sub 'arn:aws:s3:::${self:custom.AppId}-*'
+                - Sid: ListS3
+                  Effect: Allow
+                  Action:
+                    - s3:List*
+                  Resource: '*'
+
+    GithubOidc:
+      Type: AWS::IAM::OIDCProvider
+      Properties:
+        Url: https://token.actions.githubusercontent.com
+        ThumbprintList: [6938fd4d98bab03faadb97b34396831e3780aea1]
+        ClientIdList: 
+          - !Sub https://github.com/${self:custom.GithubOrg}
