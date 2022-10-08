@@ -1,0 +1,34 @@
+name: Test
+
+on: 
+  pull_request: {}
+  push:
+    branches: main
+    tags: "*"
+
+env:
+  AWS_ENDPOINT_URL: http://localhost:4566
+  AWS_DEFAULT_REGION: ap-northeast-1
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Configure AWS
+        run: |
+          export AWS_ROLE_ARN=arn:aws:iam::138554541732:role/GithubOidcDeployRole-Role-1UWY7UQA5DR69
+          export AWS_WEB_IDENTITY_TOKEN_FILE=/tmp/awscreds
+          export AWS_DEFAULT_REGION=ap-northeast-1
+
+          echo AWS_WEB_IDENTITY_TOKEN_FILE=$AWS_WEB_IDENTITY_TOKEN_FILE >> $GITHUB_ENV
+          echo AWS_ROLE_ARN=$AWS_ROLE_ARN >> $GITHUB_ENV
+          echo AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION >> $GITHUB_ENV
+
+          curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL" | jq -r '.value' > $AWS_WEB_IDENTITY_TOKEN_FILE
+
+      - run: aws sts get-caller-identity

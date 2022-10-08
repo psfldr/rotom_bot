@@ -2,9 +2,9 @@ name: Test
 
 on: 
   pull_request: {}
-  push:
-    branches: main
-    tags: "*"
+  # push:
+  #   branches: main
+  #   tags: "*"
 
 env:
   AWS_ENDPOINT_URL: http://localhost:4566
@@ -29,11 +29,17 @@ jobs:
         with:
           python-version: 3.9.14
 
-      - name: run all tests
+      - name: install python virtual environment
         run: |
           pip install pipenv
           pipenv install --dev
-          pipenv run devtools run-test
+
+      - name: pull localstack
+        run: |
+          docker pull --quiet localstack/localstack:latest
+
+      - name: run all tests
+        run: pipenv run devtools run-test
 
       # - run: pipenv run isort --recursive --diff .
       # - run: pipenv run black --check .
