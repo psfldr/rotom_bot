@@ -4,6 +4,13 @@ if status is-interactive
     neofetch
 end
 
+# 初回のみプラグインインストールを自動で実行
+if test -d ~/.config/nvim/site/autoload/
+    if test "$(ls ~/.config/nvim/site/autoload/)" = 'plug.vim'
+        nvim --headless +'PlugInstall --sync' +'PlugUpdate' +qa 2>/dev/null
+    end
+end
+
 # https://asdf-vm.com/guide/getting-started.html#_3-install-asdf
 source /opt/asdf-vm/asdf.fish
 

@@ -1,6 +1,7 @@
 # エディターの補完を設定スキーマに合わせて取得
 "$schema" = 'https://starship.rs/config-schema.json'
 add_newline = false
+command_timeout = 1000
 
 [aws]
 format = 'on [$symbol$duration ]($style)'
