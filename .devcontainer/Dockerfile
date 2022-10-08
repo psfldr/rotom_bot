@@ -28,7 +28,7 @@ RUN . /opt/asdf-vm/asdf.sh \
     && asdf local nodejs 16.17.0 \
     && asdf install python 3.9.14
 RUN sudo pacman -Syy \
-    && sudo pacman -S --noconfirm python python-pip python-pipenv \
+    && sudo pacman -S --noconfirm python python-pip python-pipenv starship\
     && pip install setuptools \
     # https://stackoverflow.com/questions/7446187/no-module-named-pkg-resources
     && yay -S --noconfirm git-secrets act jq

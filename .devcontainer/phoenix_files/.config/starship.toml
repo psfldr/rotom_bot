@@ -1,0 +1,30 @@
+# エディターの補完を設定スキーマに合わせて取得
+"$schema" = 'https://starship.rs/config-schema.json'
+add_newline = false
+
+[aws]
+format = 'on [$symbol$duration ]($style)'
+expiration_symbol = 'expired'
+
+[container]
+disabled = true
+
+[cmd_duration]
+disabled = true
+
+[directory]
+fish_style_pwd_dir_length = 1
+
+[nodejs]
+disabled = true
+
+[python]
+format = '(via [${symbol}$virtualenv ]($style))'
+style = "green bold"
+
+
+[custom.foo]
+command = """if test $(string match -r "localstack" "$(docker ps | grep localstack)") = "localstack"; echo 'running'; else; echo 'removed'; end;"""
+when = true
+style = "blue bold"
+format = "on [☁  ${output} ]($style)"

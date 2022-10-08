@@ -6,6 +6,7 @@ ln -sf ~/rotom_bot/.devcontainer/phoenix_files/.bashrc ~/
 ln -sf ~/rotom_bot/.devcontainer/phoenix_files/.config/fish/config.fish ~/.config/fish/
 ln -sf ~/rotom_bot/.devcontainer/phoenix_files/.config/fish/fish_history ~/.config/fish/
 ln -sf ~/rotom_bot/.devcontainer/phoenix_files/.config/fish/completions/devtools.fish ~/.config/fish/completions
+ln -sf ~/rotom_bot/.devcontainer/phoenix_files/.config/starship.toml ~/.config/
 ln -sf ~/rotom_bot/.devcontainer/phoenix_files/.config/neofetch/config.conf ~/.config/neofetch/
 ln -sf ~/rotom_bot/.devcontainer/phoenix_files/.actrc ~/.actrc
 
