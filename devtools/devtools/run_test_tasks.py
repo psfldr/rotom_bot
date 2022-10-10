@@ -1,5 +1,5 @@
 from invoke import task, Collection, run
-from .main_tasks import sync_ssm_parameters_to_localstack, stop_localstack
+from .main_tasks import sync_ssm_parameters_to_localstack
 
 
 @task

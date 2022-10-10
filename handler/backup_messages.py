@@ -1,51 +1,59 @@
-import os
-import time
-from unittest.mock import patch
+# import os
+# import time
+# from unittest.mock import patch
 
-import boto3
-from slack_bolt import App
-from slack_bolt.adapter.aws_lambda import SlackRequestHandler
+# import boto3
+# from slack_bolt import App
+# from slack_bolt.adapter.aws_lambda import SlackRequestHandler
 
-# FaaS で実行するときは process_before_response を True にする必要があります
-app = App(process_before_response=True)
-
-
-def respond_to_slack_within_3_seconds(body, ack):  # type: ignore
-    text = body.get("text")
-    if text is None or len(text) == 0:
-        ack(":x: Usage: /start-process (description here)")
-    else:
-        ack(f"Accepted! (task: {body['text']})")
+# # FaaS で実行するときは process_before_response を True にする必要があります
+# app = App(process_before_response=True)
 
 
-def run_long_process(respond, body):  # type: ignore
-    time.sleep(5)  # 3 秒より長い時間を指定します
-    respond(f"Completed! (task: {body['text']})")
+# def respond_to_slack_within_3_seconds(body, ack):  # type: ignore
+#     text = body.get("text")
+#     if text is None or len(text) == 0:
+#         ack(":x: Usage: /start-process (description here)")
+#     else:
+#         ack(f"Accepted! (task: {body['text']})")
 
 
-app.command("/start-process")(
-    ack=respond_to_slack_within_3_seconds,  # `ack()` の呼び出しを担当します
-    lazy=[run_long_process],  # `ack()` の呼び出しはできません。複数の関数を持たせることができます。
-)
+# def run_long_process(respond, body):  # type: ignore
+#     time.sleep(5)  # 3 秒より長い時間を指定します
+#     respond(f"Completed! (task: {body['text']})")
 
 
-boto3_client_alias = boto3.client
+# app.command("/start-process")(
+#     ack=respond_to_slack_within_3_seconds,  # `ack()` の呼び出しを担当します
+#     lazy=[run_long_process],  # `ack()` の呼び出しはできません。複数の関数を持たせることができます。
+# )
 
 
-def patched_boto3_client(*args, **kwargs):  # type: ignore
-    """LocalStack上での実行時のみエンドポイントを設定するboto3.client関数"""
-    # https://docs.localstack.cloud/integrations/sdks/python/
-    LOCALSTACK_HOSTNAME = os.environ.get("LOCALSTACK_HOSTNAME")
-    EDGE_PORT = os.environ.get("EDGE_PORT")
-    if "endpoint_url" not in kwargs and LOCALSTACK_HOSTNAME:
-        kwargs["endpoint_url"] = f"http://{LOCALSTACK_HOSTNAME}:{EDGE_PORT}"
-    return boto3_client_alias(*args, **kwargs)
+# boto3_client_alias = boto3.client
 
 
-@patch("boto3.client", patched_boto3_client)
+# def patched_boto3_client(*args, **kwargs):  # type: ignore
+#     """LocalStack上での実行時のみエンドポイントを設定するboto3.client関数"""
+#     # https://docs.localstack.cloud/integrations/sdks/python/
+#     LOCALSTACK_HOSTNAME = os.environ.get("LOCALSTACK_HOSTNAME")
+#     EDGE_PORT = os.environ.get("EDGE_PORT")
+#     if "endpoint_url" not in kwargs and LOCALSTACK_HOSTNAME:
+#         kwargs["endpoint_url"] = f"http://{LOCALSTACK_HOSTNAME}:{EDGE_PORT}"
+#     return boto3_client_alias(*args, **kwargs)
+
+
+# @patch("boto3.client", patched_boto3_client)
 def handler(event, context):  # type: ignore
-    slack_handler = SlackRequestHandler(app=app)
-    return slack_handler.handle(event, context)
+    return {
+        "statusCode": 200,
+        "body": {
+            "message": "Hello world!!",
+            "path": event["path"],
+            "http_method": event["httpMethod"],
+        },
+    }
+    # slack_handler = SlackRequestHandler(app=app)
+    # return slack_handler.handle(event, context)
 
 
 # def lambda_handler(event, context):  # type: ignore

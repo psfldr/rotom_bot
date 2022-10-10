@@ -1,0 +1,70 @@
+service: localstack-proxy-api
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  region: ap-northeast-1
+
+resources:
+  Resources:
+    MainRestApi:
+      Type: AWS::ApiGateway::RestApi
+      Properties: 
+        # ApiKeySourceType: String
+        # BinaryMediaTypes: 
+        #   - String
+        # Body: Json
+        # BodyS3Location: 
+        #   S3Location
+        # CloneFrom: String
+        # Description: String
+        # DisableExecuteApiEndpoint: Boolean
+        # EndpointConfiguration: 
+        #   EndpointConfiguration
+        # FailOnWarnings: Boolean
+        # MinimumCompressionSize: Integer
+        # Mode: overwrite
+        Name: localstack-proxy-api
+        Parameters:
+          endpointConfigurationTypes: REGIONAL
+    MainResource:
+      Type: AWS::ApiGateway::Resource
+      Properties:
+        ParentId:
+          Fn::GetAtt:
+            - MainRestApi # our default Rest API logical ID
+            - RootResourceId
+        PathPart: localstack-proxy # the endpoint in your API that is set as proxy
+        RestApiId:
+          Ref: MainRestApi
+    MainMethod:
+      Type: AWS::ApiGateway::Method
+      Properties:
+        ResourceId:
+          Ref: MainResource
+        RestApiId:
+          Ref: MainRestApi
+        HttpMethod: POST # the method of your proxy. Is it GET or POST or ... ?
+        MethodResponses:
+          - StatusCode: "200"
+        Integration:
+          IntegrationHttpMethod: POST
+          Type: HTTP
+          Uri: ${param:ngrok_url}
+          IntegrationResponses:
+            - StatusCode: "200"
+        AuthorizationType: NONE
+    # MainDeployment:
+    #   Type: AWS::ApiGateway::Deployment
+    #   DependsOn: MainMethod
+    #   Properties:
+    #     RestApiId: !Ref MainRestApi
+    #     StageName: dev
+    #     Description: ${param:ngrok_url}
+  Outputs:
+    RestApiId:
+      Description: ID of REST API
+      Value: !Ref MainRestApi
+      Export:
+        Name: LocalstackProxyApiRestApiId

@@ -23,12 +23,14 @@ coloredlogs.install(
 )
 
 
-def execute_command(args: List[str], cwd: str = "") -> None:
+def execute_command(args: List[str], cwd: str = "") -> int:
     """コマンドをサブプロセスで実行する。
 
     Args:
         args (list[str]): コマンドの引数
         cwd (str): 実行時のディレクトリ
+    Returns:
+        int: リターンコード
     """
     command = " ".join(args)
     logger: logging.Logger = logging.getLogger(LOGGING_APP_NAME)
@@ -54,3 +56,4 @@ def execute_command(args: List[str], cwd: str = "") -> None:
         logger.error(
             f"{Fore.RED}❌ サブプロセスの処理が異常終了: {returncode=} {command=}{Style.RESET_ALL}"
         )
+    return returncode

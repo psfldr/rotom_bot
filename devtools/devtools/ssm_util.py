@@ -100,38 +100,3 @@ class SSMUtil:
         page_name = self.get_parameter(path, "prod")
         parent_page_id: str = self.notion_client.search(query=page_name)["results"][0]["id"]  # type: ignore
         return parent_page_id
-
-        # self.local_ssm_client.put_parameter(
-        #     Name=path_format.format("BACKUP_PARENT_PAGE_ID"),
-        #     Value=parent_page_id,
-        #     Type="String",
-        #     Overwrite=True,
-        #     Tier="Standard",
-        #     DataType="text",
-        # )
-        # logger.info("DB名からIDを取得し、SSMに登録します。")
-        # database_name_keys = [
-        #     "BACKUP_MESSAGES_DATABASE_NAME",
-        #     "BACKUP_CHANNELS_DATABASE_NAME",
-        #     "BACKUP_USERS_DATABASE_NAME",
-        # ]
-        # for i, key in enumerate(database_name_keys, start=1):
-        #     database_name_path = path_format.format(key)
-        #     logger.info(
-        #         f"{Style.DIM}ID取得 {i}/{len(database_name_keys)} {database_name_path=}{Style.RESET_ALL}"
-        #     )
-        #     database_id = self.get_child_database_id_and_set_prod(
-        #         parent_page_id, database_name_path
-        #     )
-        #     database_id_path = database_name_path.replace("NAME", "ID")
-        #     self.local_ssm_client.put_parameter(
-        #         Name=database_id_path,
-        #         Value=database_id,
-        #         Type="String",
-        #         Overwrite=True,
-        #         Tier="Standard",
-        #         DataType="text",
-        #     )
-        #     logger.info(
-        #         f"{Style.DIM}SSM登録 {i}/{len(database_name_keys)} {database_id_path=}{Style.RESET_ALL}"
-        #     )
